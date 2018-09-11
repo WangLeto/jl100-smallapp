@@ -17,8 +17,9 @@
   "author": "leto <1907984744@qq.com>",
   "license": "MIT",
   "dependencies": {
+    "base64-utf8": "^0.1.8",
     "wepy": "^1.6.0",
-    "wepy-async-function": "^1.4.4",
+    "wepy-async-function": "^1.4.6",
     "wepy-com-toast": "^1.0.2"
   },
   "devDependencies": {
