@@ -260,6 +260,7 @@ export default class Index extends wepy.page {
 
   async onShow() {
     this.manualSync = await settingManager.get(settingManager.keys.manualSync);
+    this.$apply();
   }
 }
 </script>

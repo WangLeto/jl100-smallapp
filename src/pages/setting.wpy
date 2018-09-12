@@ -1,8 +1,12 @@
 <style lang="less">
 .page__bd {
-  margin-bottom: 0;
+  /*margin-bottom: 0;*/
 }
+
 .switch {
+  margin-top: -30px;
+}
+.button-sp-area {
   margin-top: 30px;
 }
 </style>
@@ -36,17 +40,17 @@
       </view>
     </view>
   </view>
-  <view class="button-sp-area">
-    <button @tap="submit">验证并保存</button>
-  </view>
   <view class="weui-cells__title switch">开关</view>
   <view class="weui-cells weui-cells_after-title">
     <view class="weui-cell weui-cell_switch">
       <view class="weui-cell__bd">手动同步</view>
       <view class="weui-cell__ft">
-        <switch checked="{{manualSync}}" @change="changeSwitch" />
+        <switch checked="{{manualSync}}" @change="changeSwitch"/>
       </view>
     </view>
+  </view>
+  <view class="button-sp-area">
+    <button @tap="submit">验证并保存</button>
   </view>
   <!--
     <view class="weui-cells__title">日历颜色标记设置</view>
@@ -116,12 +120,14 @@ export default class Demo extends wepy.page {
     },
     changeSwitch() {
       this.manualSync = !this.manualSync;
-      console.log('aa')
       if (this.manualSync) {
         this.verifyAccount(settingManager.set, [settingManager.keys.manualSync, this.manualSync]);
+      } else {
+        settingManager.set(settingManager.keys.manualSync, this.manualSync);
       }
     }
   };
+
   async verifyAccount(suc_callback, args) {
     let password = await saveLocal.getPassword();
     if (!!password) {
@@ -132,9 +138,10 @@ export default class Demo extends wepy.page {
       this.$apply();
     }
   }
+
   async onLoad() {
     this.manualSync = await settingManager.get(settingManager.keys.manualSync);
-    console.log(this.manualSync)
+    console.log(this.manualSync);
     let account = await saveLocal.getAccount();
     let password = await saveLocal.getPassword();
     if (account && password) {
