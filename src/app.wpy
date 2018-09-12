@@ -18,9 +18,9 @@ export default class extends wepy.app {
     ],
     window: {
       backgroundTextStyle: 'light',
-      navigationBarBackgroundColor: '#fff',
-      navigationBarTitleText: 'WeChat',
-      navigationBarTextStyle: 'black'
+      navigationBarBackgroundColor: '#aad4f5',
+      navigationBarTitleText: 'JL日历',
+      navigationBarTextStyle: 'white'
     },
     plugins: {
       "calendar": {
