@@ -8,25 +8,62 @@
   padding: 25px 0;
   box-sizing: border-box;
 }
+
+.weui-cells__title {
+  text-align: center;
+  max-width: 70%;
+  margin: 20px auto;
+}
+
+
+.edit-record {
+  margin: 20rpx auto;
+  background: #ff4582;
+  box-shadow: 0 0 5px 1px #ff4582;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  margin: 10rpx -10rpx;
+  button {
+    display: inline;
+    width: 45%;
+  }
+}
+
+.button-sp-area {
+  margin-top: -10px;
+}
+
 </style>
 <template>
   <view class="main">
     <view class="demo5">
       <calendar
         calendar-style="calendar" header-style="header" board-style="board"
-        binddayClick="chooseDay"
+        weeks-type="cn" show-more-days
+        @dayClick="chooseDay"
         @nextMonth="nextMonth"
+        @prevMonth="prevMonth"
+        @dateChange="dateChange"
         days-color="{{daysStyle}}"></calendar>
+      <view class="weui-cells__title">
+        <view>选择了 {{currentYear}}年{{currentMonth}}月{{currentDay}}日</view>
+        <view>{{alterableDay?'　':'仅能编辑经过的日期'}}</view>
+      </view>
     </view>
 
-    <view class="button-sp-area" style="margin-top: 40rpx">
-      <view class="weui-cells__title">选择了 {{currentYear + '年' + currentMonth + '月' + currentDay + '日'}}</view>
-      <picker @change="chooseTimes" value="{{times}}" range="{{timesArray}}" wx:if="{{alterableDay}}">
-        <button class="weui-btn" type="primary">
-          设置次数：{{todayTimes}}
+    <view class="button-sp-area">
+      <picker @change="chooseTimes" class="{{alterableDay ? '' : 'hide'}}" value="{{times}}" range="{{timesArray}}">
+        <button class="edit-record">
+          {{todayTimes}}
         </button>
       </picker>
-      <button class="weui-btn" type="default" plain="true" @tap="goSetting">设置</button>
+      <view class="buttons">
+        <button @tap="goSetting">设置</button>
+        <button @tap="goAnalyse">分析</button>
+      </view>
     </view>
   </view>
 </template>
@@ -62,17 +99,21 @@ export default class Index extends wepy.page {
   computed = {
     todayTimes() {
       if (!this.times) {
-        return '未选择';
+        return `编辑${this.currentMonth}月${this.currentDay}日记录`;
       } else {
         return this.timesArray[this.times];
       }
     },
     alterableDay() {
-      return this.currentYear <= this.year &&
-        this.currentMonth <= this.month &&
-        this.currentDay < this.day;
+      return this.isAlterable();
     }
   };
+
+  isAlterable() {
+    let current = new Date(this.currentYear, this.currentMonth - 1, this.currentDay);
+    let today = new Date(this.year, this.month - 1, this.day);
+    return current.getTime() < today.getTime();
+  }
 
   methods = {
     goSetting() {
@@ -101,6 +142,11 @@ export default class Index extends wepy.page {
     },
     chooseTimes(e) {
       this.times = e.detail.value;
+    },
+    goAnalyse() {
+      wx.navigateTo({
+        url: 'analyse'
+      });
     }
   };
 
@@ -131,6 +177,7 @@ export default class Index extends wepy.page {
 
   // 更新日期
   refreshCurrent(detail) {
+    console.log(detail.currentYear, detail.currentMonth);
     this.currentYear = detail.currentYear;
     this.currentMonth = detail.currentMonth;
     this.currentDay = detail.day || 1;
@@ -165,7 +212,7 @@ export default class Index extends wepy.page {
     const days_count = new Date(this.currentYear, this.currentMonth, 0).getDate();
     let style = [];
     for (let i = 1; i <= days_count; i++) {
-      const date = new Date(this.data.year, this.data.month - 1, i);
+      const date = new Date(this.currentYear, this.currentMonth - 1, i);
       if (date.getDay() === 0) {
         style.push(this.generateDayStyle(i, colors.sunday));
       } else {

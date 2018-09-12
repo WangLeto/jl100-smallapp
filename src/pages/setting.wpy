@@ -35,7 +35,7 @@
     </view>
   </view>
   <view class="button-sp-area">
-    <button class="weui-btn" plain="" type="default" @tap="submit">验证并保存</button>
+    <button @tap="submit">验证并保存</button>
   </view>
   <!--
     <view class="weui-cells__title">日历颜色标记设置</view>

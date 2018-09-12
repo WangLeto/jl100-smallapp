@@ -1,0 +1,14 @@
+<style></style>
+<template>
+  <view class="page__hd">
+    <view class="page__title">分析</view>
+    <view class="page__desc">暂未开放</view>
+  </view>
+</template>
+<script>
+import wepy from 'wepy';
+
+export default class Demo extends wepy.page {
+
+}
+</script>
