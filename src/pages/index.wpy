@@ -2,7 +2,6 @@
 </style>
 <template>
   <view class="main">
-    <text>{{text}}</text>
     <calendar binddayClick="dayClick"
               days-color="{{daysStyle}}"></calendar>
     <button @tap="goJGY">配置坚果云</button>
@@ -25,7 +24,6 @@ export default class Index extends wepy.page {
   };
 
   data = {
-    text: 'blank',
     year: new Date().getFullYear(),      // 年份
     month: new Date().getMonth() + 1,    // 月份
     day: new Date().getDate(),
@@ -49,7 +47,6 @@ export default class Index extends wepy.page {
   async onLoad() {
     if (await accountExists()) {
       this.text = await dav.getAsync();
-      console.log(this.text);
       this.$apply();
     }
     this.test();

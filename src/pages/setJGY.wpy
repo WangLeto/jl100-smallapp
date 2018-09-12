@@ -1,6 +1,14 @@
-<style></style>
+<style lang="less">
+input {
+  margin: 20rpx;
+  border: solid 1rpx #eee;
+  padding: 10rpx;
+  border-radius: 8rpx;
+}
+</style>
 <template>
   <view>
+    <button @tap="showTutorial">教程</button>
     <input type="text" placeholder="账号" @input="inputAccount"/>
     <input type="password" placeholder="应用密码" @input="inputPassword"/>
     <button @tap="submit">确认</button>
@@ -38,6 +46,11 @@ export default class Demo extends wepy.page {
       } else {
         tips.toastErr('未完成输入');
       }
+    },
+    showTutorial() {
+      wx.navigateTo({
+        url: 'tutorial'
+      });
     }
   };
 }

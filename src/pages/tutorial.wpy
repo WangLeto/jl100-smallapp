@@ -1,0 +1,109 @@
+<style lang="less">
+@fontSize: 30rpx;
+page {
+  color: #666;
+  line-height: 1.4rem;
+  font-size: @fontSize;
+  padding: 20rpx;
+  box-sizing: border-box;
+  .title, .point {
+    font-weight: bold;
+    font-size: 1.4*@fontSize;
+    color: #333;
+    padding: 10rpx;
+  }
+  .point {
+    font-size: 1.2*@fontSize;
+  }
+  .list {
+    padding: 10rpx;
+  }
+}
+
+view {
+  display: block;
+}
+
+image {
+  margin: auto;
+  padding: 20rpx 0;
+}
+
+.img1 {
+  height: 500rpx;
+}
+
+.img3 {
+  height: 120rpx;
+}
+
+.img4 {
+  height: 86rpx;
+}
+
+.img5, .img6 {
+  height: 600rpx;
+}
+
+.img6 {
+  margin-bottom: -80rpx;
+}
+
+button {
+  margin: 40rpx 0;
+}
+</style>
+<template>
+  <view>
+    <view>
+      <view class="title">坚果云第三方应用授权WebDAV开启方法</view>
+      <view class="point">网页端</view>
+      <view class="list">1. 打开坚果云官网（https://www.jianguoyun.com/）并登录你的坚果云账号</view>
+      <view class="list">2. 点击右上角账户名处选择 【账户信息】，然后选择【安全选项】</view>
+      <image mode="aspectFit" class="img1"
+             @tap="preview({{imgs[0]}})" src="{{imgs[0]}}"></image>
+      <view class="list">3. 在 “安全选项“ 中找到 第三方应用管理，并选择“添加应用密码“，输入名称如：wps后，选择“生成密码”，选择完成</view>
+      <image mode="aspectFit" class="img2"
+             @tap="preview({{imgs[1]}})" src="{{imgs[1]}}"></image>
+      <image mode="aspectFit" class="img3"
+             @tap="preview({{imgs[2]}})" src="{{imgs[2]}}"></image>
+      <image mode="aspectFit" class="img4"
+             @tap="preview({{imgs[3]}})" src="{{imgs[3]}}"></image>
+      <view class="list">4. 以后在其他设备连接wps时都可以使用这个应用密码，如果还有其他应用想要连接，可以再设置新的应用密码。</view>
+      <view class="point">移动端</view>
+      <view class="list">以iOS客户端为例，主页面点击“更多”->“第三方应用管理”，如下图。</view>
+      <image mode="aspectFit" class="img5"
+             @tap="preview({{imgs[4]}})" src="{{imgs[4]}}"></image>
+      <view class="list">生成新的应用密码后，在支持WebDAV的第三方应用内输入服务器地址、账号和对应的应用密码，就可以在该第三方应用访问云端的文件。iOS客户端的界面如下图。</view>
+      <image mode="aspectFit" class="img6"
+             @tap="preview({{imgs[5]}})" src="{{imgs[5]}}"></image>
+      <view class="list">（安卓端在【设置】-【第三方应用管理】，添加方法如ios类似）</view>
+    </view>
+    <button @tap="back">返回</button>
+  </view>
+</template>
+<script>
+import wepy from 'wepy';
+
+export default class Demo extends wepy.page {
+  data = {
+    imgs: ['http://help.jianguoyun.com/wp-content/uploads/2016/09/%E8%B4%A6%E6%88%B7%E4%BF%A1%E6%81%AF.png',
+      'http://help.jianguoyun.com/wp-content/uploads/2016/09/%E5%AE%89%E5%85%A8%E9%80%89%E9%A1%B9.png',
+      'http://help.jianguoyun.com/wp-content/uploads/2016/09/%E7%94%9F%E6%88%90%E5%AF%86%E7%A0%811.png',
+      'http://help.jianguoyun.com/wp-content/uploads/2016/09/%E5%AF%86%E7%A0%81.png',
+      'http://help.jianguoyun.com/wp-content/uploads/2014/05/%E6%9B%B4%E5%A4%9A.png',
+      'http://help.jianguoyun.com/wp-content/uploads/2014/05/ios1.png'
+    ]
+  };
+  methods = {
+    back() {
+      wx.navigateBack();
+    },
+    preview(e) {
+      wx.previewImage({
+        urls: [e]
+      });
+    }
+  };
+}
+</script>
