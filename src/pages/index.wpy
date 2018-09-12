@@ -43,6 +43,8 @@
       <calendar
         calendar-style="calendar" header-style="header" board-style="board"
         weeks-type="cn" show-more-days
+        start-date="2015-01"
+        end-date="2050-01"
         @dayClick="chooseDay"
         @nextMonth="nextMonth"
         @prevMonth="prevMonth"
@@ -74,6 +76,7 @@ import dav from '../api/davApi';
 import { accountExists } from '../api/saveLocal';
 import _ from 'lodash';
 import { colors, timesArray, chosenDayToken } from '../api/configure';
+import recordManager from '../utils/recordManager';
 
 const MONTHS = ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May.', 'June.', 'July.', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'];
 export default class Index extends wepy.page {
@@ -93,7 +96,8 @@ export default class Index extends wepy.page {
     str: MONTHS[new Date().getMonth()],  // 月份字符串
     daysStyle: null,
     times: null,
-    timesArray: timesArray
+    timesArray: timesArray,
+    records: null
   };
 
   computed = {
@@ -140,8 +144,11 @@ export default class Index extends wepy.page {
       this.refreshMonthStyle();
       this.drawChosenDayAndToday();
     },
-    chooseTimes(e) {
+    async chooseTimes(e) {
       this.times = e.detail.value;
+      let records = await recordManager.addRecord(this.currentYear, this.currentMonth, this.currentDay, this.times);
+      console.log(records)
+      dav.putStr(JSON.stringify(records));
     },
     goAnalyse() {
       wx.navigateTo({
@@ -152,8 +159,7 @@ export default class Index extends wepy.page {
 
   async onLoad() {
     if (await accountExists()) {
-      this.text = await dav.getAsync();
-      this.$apply();
+      this.records = await recordManager.getRecords();
     }
     this.refreshMonthStyle();
     this.drawChosenDayAndToday();

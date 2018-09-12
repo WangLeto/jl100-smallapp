@@ -17,7 +17,7 @@
           <view class="weui-label">账号</view>
         </view>
         <view class="weui-cell__bd">
-          <input class="weui-input" type="text" placeholder="账号" @input="inputAccount"/>
+          <input class="weui-input" type="text" placeholder="账号" @input="inputAccount" value="{{account}}"/>
         </view>
       </view>
       <view class="weui-cell weui-cell_input weui-cell_vcode">
@@ -25,7 +25,7 @@
           <view class="weui-label">密码</view>
         </view>
         <view class="weui-cell__bd">
-          <input class="weui-input" type="password" placeholder="应用密码" @input="inputPassword"/>
+          <input class="weui-input" type="password" placeholder="应用密码" @input="inputPassword" value="{{password}}"/>
         </view>
       </view>
       <view class="weui-cell weui-cell_access weui-cell_link">
@@ -67,7 +67,7 @@
 </template>
 <script>
 import wepy from 'wepy';
-import localSave from '../api/saveLocal';
+import saveLocal from '../api/saveLocal';
 import tips from '../utils/tips';
 import dav from '../api/davApi';
 
@@ -90,8 +90,7 @@ export default class Demo extends wepy.page {
           return;
         }
         tips.toastSuccess('配置成功！');
-        await localSave.saveAccount(this.account);
-        await localSave.savePassword(this.password);
+        await saveLocal.saveAccountPassword(this.account, this.password);
         await dav.delTestFile();
         wx.navigateBack();
       } else {
@@ -104,5 +103,13 @@ export default class Demo extends wepy.page {
       });
     }
   };
+  async onLoad() {
+    let account = await saveLocal.getAccount();
+    let password = await saveLocal.getPassword();
+    if (account && password) {
+      this.account = account;
+      this.password = password;
+    }
+  }
 }
 </script>

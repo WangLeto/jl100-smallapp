@@ -2,11 +2,8 @@ import configure from './configure';
 
 let dbKeys = configure.dbKeys;
 
-const saveAccount = async function(account) {
+const saveAccountPassword = async function(account, password) {
   await wx.setStorageSync(dbKeys.jgyAccount, account);
-};
-
-const savePassword = async function(password) {
   await wx.setStorageSync(dbKeys.jgyPassword, password);
 };
 
@@ -24,15 +21,15 @@ const accountExists = async function() {
   return account && password;
 };
 
-const saveRecord = async function(record) {
-  if (typeof record !== 'string') {
-    record = JSON.stringify(record);
+const saveRecord = async function(records) {
+  if (typeof records !== 'string') {
+    records = JSON.stringify(records);
   }
-  await wx.setStorageSync(dbKeys.record, record);
+  await wx.setStorageSync(dbKeys.records, records);
 };
 
 const getRecordParsed = async function() {
-  let str = await wx.getStorageSync(dbKeys.record);
+  let str = await wx.getStorageSync(dbKeys.records);
   if (!str) {
     await saveRecord([]);
     return [];
@@ -41,8 +38,7 @@ const getRecordParsed = async function() {
 };
 
 module.exports = {
-  saveAccount,
-  savePassword,
+  saveAccountPassword,
   getAccount,
   getPassword,
   accountExists,

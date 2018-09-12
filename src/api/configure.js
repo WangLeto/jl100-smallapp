@@ -4,7 +4,7 @@ const testFileName = '我的坚果云/__JL日历临时文件-可删除';
 const dbKeys = {
   jgyAccount: 'jgyAccount',
   jgyPassword: 'jgyPassword',
-  record: 'record'
+  records: 'records'
 };
 const colors = {
   currentChosen: {

@@ -8,7 +8,7 @@ import wepy from 'wepy';
 import 'wepy-async-function';
 import _ from 'lodash';
 import tips from './utils/tips';
-import dav from './api/davApi';
+import recordManager from './utils/recordManager';
 import { mountLodash } from './utils/tools';
 
 export default class extends wepy.app {
@@ -60,7 +60,7 @@ export default class extends wepy.app {
         if (p.statusCode === 404) {
           if (p.data.indexOf('The file was deleted')) {
             tips.loading('正在重构云端文件');
-            await dav.uploadLocal();
+            await recordManager.rebuildCloudBackup();
             tips.hideLoading();
           }
         }

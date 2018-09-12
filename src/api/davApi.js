@@ -41,21 +41,26 @@ const request = async (params = {}, fail_fun = null, success_fun = null) => {
   return result;
 };
 
-const getAsync = async (authInfo = null) => {
+// 上传下载前，均对字符串进行压缩处理
+const getStrAsync = async (authInfo = null) => {
   let r = await request({
     authInfo: authInfo
   });
   if (r.statusCode === 404) {
     return '';
   }
-  let str = r.data;
+  console.log(r.data);
+  let str = zip.decompress(r.data);
   console.log(str);
-  let unzipStr = zip.decompress(str);
-  console.log(unzipStr);
-  return unzipStr;
+  return str;
 };
 
-const putAsync = async (str, autoInfo = null) => {
+const putStrAsync = async (str, autoInfo = null) => {
+  // 测试：
+  // str = str.replace('15', '16');
+  console.log(str);
+  str = zip.compress(str);
+  console.log(str);
   return await request({
     method: 'PUT',
     data: str,
@@ -63,7 +68,8 @@ const putAsync = async (str, autoInfo = null) => {
   });
 };
 
-const put = (str) => {
+const putStr = (str) => {
+  str = zip.compress(str);
   request({
     method: 'PUT',
     data: str
@@ -88,18 +94,10 @@ const delTestFile = async () => {
   });
 };
 
-const uploadLocal = async () => {
-  let record = await saveLocal.getRecordParsed();
-  let str = zip.compress(JSON.stringify(record));
-  console.log(str);
-  await putAsync(str);
-};
-
 module.exports = {
-  getAsync,
-  put,
-  putAsync,
+  getStrAsync,
+  putStr,
+  putStrAsync,
   testAccount,
-  delTestFile,
-  uploadLocal
+  delTestFile
 };
