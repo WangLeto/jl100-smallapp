@@ -45,10 +45,6 @@ image {
   height: 600rpx;
 }
 
-.img6 {
-  margin-bottom: -80rpx;
-}
-
 button {
   margin: 40rpx 0;
 }

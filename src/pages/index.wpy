@@ -1,23 +1,33 @@
 <style lang="less">
 @import "../style/calendar.less";
+
+.main {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 25px 0;
+  box-sizing: border-box;
+}
 </style>
 <template>
   <view class="main">
     <view class="demo5">
       <calendar
         calendar-style="calendar" header-style="header" board-style="board"
-        binddayClick="dayClick"
+        binddayClick="chooseDay"
         @nextMonth="nextMonth"
         days-color="{{daysStyle}}"></calendar>
     </view>
-    <view class="work">
-      <picker @change="chooseTimes" value="{{times}}" range="{{timesArray}}">
-        <button class="picker">
+
+    <view class="button-sp-area" style="margin-top: 40rpx">
+      <view class="weui-cells__title">选择了 {{currentYear + '年' + currentMonth + '月' + currentDay + '日'}}</view>
+      <picker @change="chooseTimes" value="{{times}}" range="{{timesArray}}" wx:if="{{alterableDay}}">
+        <button class="weui-btn" type="primary">
           设置次数：{{todayTimes}}
         </button>
       </picker>
+      <button class="weui-btn" type="default" plain="true" @tap="goSetting">设置</button>
     </view>
-    <button @tap="goJGY">配置坚果云</button>
   </view>
 </template>
 
@@ -25,6 +35,8 @@
 import wepy from 'wepy';
 import dav from '../api/davApi';
 import { accountExists } from '../api/saveLocal';
+import _ from 'lodash';
+import { colors, timesArray, chosenDayToken } from '../api/configure';
 
 const MONTHS = ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May.', 'June.', 'July.', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'];
 export default class Index extends wepy.page {
@@ -38,10 +50,13 @@ export default class Index extends wepy.page {
     year: new Date().getFullYear(),      // 年份
     month: new Date().getMonth() + 1,    // 月份
     day: new Date().getDate(),
+    currentYear: new Date().getFullYear(),
+    currentMonth: new Date().getMonth() + 1,
+    currentDay: new Date().getDate(),
     str: MONTHS[new Date().getMonth()],  // 月份字符串
     daysStyle: null,
     times: null,
-    timesArray: ['0😘', '1😑', '2☹️', '3😣', '4😵', '>=5😱']
+    timesArray: timesArray
   };
 
   computed = {
@@ -51,36 +66,38 @@ export default class Index extends wepy.page {
       } else {
         return this.timesArray[this.times];
       }
+    },
+    alterableDay() {
+      return this.currentYear <= this.year &&
+        this.currentMonth <= this.month &&
+        this.currentDay < this.day;
     }
   };
 
   methods = {
-    goJGY() {
+    goSetting() {
       wx.navigateTo({
-        url: 'setJGY'
+        url: 'setting'
       });
     },
-    dayClick(e) {
-      console.log(e.detail);
-      let detail = e.detail;
-      let item = {
-        month: 'current',
-        day: detail.day,
-        color: 'white',
-        background: '#58cc69'
-      };
-      console.log(item);
-      this.daysStyle.push(item);
-      this.$apply();
+    chooseDay(e) {
+      this.currentDay = e.detail.day;
+      this.drawChosenDayAndToday();
     },
     nextMonth(e) {
-      this.circleToday(e.detail);
+      this.refreshCurrent(e.detail);
+      this.refreshMonthStyle();
+      this.drawChosenDayAndToday();
     },
     prevMonth(e) {
-      this.circleToday(e.detail);
+      this.refreshCurrent(e.detail);
+      this.refreshMonthStyle();
+      this.drawChosenDayAndToday();
     },
     dateChange(e) {
-      console.log(e.detail);
+      this.refreshCurrent(e.detail);
+      this.refreshMonthStyle();
+      this.drawChosenDayAndToday();
     },
     chooseTimes(e) {
       this.times = e.detail.value;
@@ -92,41 +109,86 @@ export default class Index extends wepy.page {
       this.text = await dav.getAsync();
       this.$apply();
     }
-    this.test();
-    this.circleToday();
+    this.refreshMonthStyle();
+    this.drawChosenDayAndToday();
+    this.$apply();
   }
 
-  // 圈出今天
-  circleToday(detail = {}) {
-    let year = detail.currentYear || this.year;
-    let month = detail.currentMonth || this.month;
-    if (year === this.year && month === this.month) {
-      this.daysStyle.push({
-        month: 'current',
-        day: this.day,
-        background: '#ccc',
-        color: 'white'
-      });
+  // 高亮选择的日期
+  drawChosenDayAndToday() {
+    this.eraseChosenRecoverRecord();
+    let item = this.generateDayStyle(this.currentDay, colors.currentChosen, true);
+    this.eraseDay(this.currentDay);
+    this.daysStyle.push(item);
+    // 绘制 today
+    if (this.currentYear === this.year && this.currentMonth === this.month) {
+      if (this.currentDay !== this.day) {
+        this.eraseDay(this.day);
+        this.daysStyle.push(this.generateDayStyle(this.day, colors.today));
+      }
     }
   }
 
-  test() {
-    const days_count = new Date(this.data.year, this.data.month, 0).getDate();
+  // 更新日期
+  refreshCurrent(detail) {
+    this.currentYear = detail.currentYear;
+    this.currentMonth = detail.currentMonth;
+    this.currentDay = detail.day || 1;
+  }
+
+  // 移除当前月份的某一天
+  eraseDay(day, style = this.daysStyle) {
+    _.remove(style, { day: day });
+  }
+
+  // 移除高亮日期，并重绘记录
+  eraseChosenRecoverRecord() {
+    let token = chosenDayToken;
+    let removed = _.remove(this.daysStyle, e => {
+      if (e[token]) {
+        return true;
+      }
+    });
+    if (removed.length !== 0) {
+      this.recover(removed[0]);
+    }
+  }
+
+  // todo 重绘记录
+  recover(removed) {
+    const date = new Date(this.currentYear, this.currentMonth - 1, removed.day);
+    let color = date.getDay() === 0 ? colors.sunday : colors.normalDay;
+    this.daysStyle.push(this.generateDayStyle(removed.day, color));
+  }
+
+  refreshMonthStyle() {
+    const days_count = new Date(this.currentYear, this.currentMonth, 0).getDate();
     let style = [];
     for (let i = 1; i <= days_count; i++) {
       const date = new Date(this.data.year, this.data.month - 1, i);
-      if (date.getDay() == 0) {
-        style.push({
-          month: 'current', day: i, color: '#f488cd'
-        });
+      if (date.getDay() === 0) {
+        style.push(this.generateDayStyle(i, colors.sunday));
       } else {
-        style.push({
-          month: 'current', day: i, color: '#a18ada'
-        });
+        style.push(this.generateDayStyle(i, colors.normalDay));
       }
     }
+    // 重绘选择的日期
+    this.eraseDay(this.currentDay, style);
+    style.push(this.generateDayStyle(this.currentDay, colors.currentChosen));
     this.daysStyle = style;
-    this.$apply();
+  }
+
+  generateDayStyle(day, colors, chosenHighlight = false) {
+    let obj = {
+      month: 'current',
+      day: day,
+      color: colors.color,
+      background: colors.back
+    };
+    if (chosenHighlight) {
+      obj[chosenDayToken] = true;
+    }
+    return obj;
   }
 }
 </script>

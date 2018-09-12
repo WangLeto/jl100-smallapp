@@ -1,0 +1,108 @@
+<style lang="less">
+.page__bd {
+  margin-bottom: 0;
+}
+
+</style>
+<template>
+  <view class="page__hd">
+    <view class="page__title">设置</view>
+    <view class="page__desc">进行你的设置</view>
+  </view>
+  <view class="page__bd">
+    <view class="weui-cells__title">坚果云备份设置</view>
+    <view class="weui-cells weui-cells_after-title">
+      <view class="weui-cell weui-cell_input">
+        <view class="weui-cell__hd">
+          <view class="weui-label">账号</view>
+        </view>
+        <view class="weui-cell__bd">
+          <input class="weui-input" type="text" placeholder="账号" @input="inputAccount"/>
+        </view>
+      </view>
+      <view class="weui-cell weui-cell_input weui-cell_vcode">
+        <view class="weui-cell__hd">
+          <view class="weui-label">密码</view>
+        </view>
+        <view class="weui-cell__bd">
+          <input class="weui-input" type="password" placeholder="应用密码" @input="inputPassword"/>
+        </view>
+      </view>
+      <view class="weui-cell weui-cell_access weui-cell_link">
+        <view class="weui-cell__bd" @tap="showTutorial">查看教程</view>
+        <view class="weui-cell__ft weui-cell__ft_in-access"></view>
+      </view>
+    </view>
+  </view>
+  <view class="button-sp-area">
+    <button class="weui-btn" plain="" type="default" @tap="submit">验证并保存</button>
+  </view>
+  <!--
+    <view class="weui-cells__title">日历颜色标记设置</view>
+    <view class="weui-cells weui-cells_after-title">
+      <view class="weui-cell weui-cell_input">
+        <view class="weui-cell__hd">
+          <view class="weui-label">账号</view>
+        </view>
+        <view class="weui-cell__bd">
+          <input class="weui-input" type="text" placeholder="账号" @input="inputAccount"/>
+        </view>
+      </view>
+      <view class="weui-cell weui-cell_input weui-cell_vcode">
+        <view class="weui-cell__hd">
+          <view class="weui-label">密码</view>
+        </view>
+        <view class="weui-cell__bd">
+          <input class="weui-input" type="password" placeholder="应用密码" @input="inputPassword"/>
+        </view>
+      </view>
+      <view class="weui-cell weui-cell_access weui-cell_link">
+        <view class="weui-cell__bd" @tap="showTutorial">查看教程</view>
+        <view class="weui-cell__ft weui-cell__ft_in-access"></view>
+      </view>
+    </view>
+    <view class="button-sp-area">
+      <button class="weui-btn" plain="" type="default" @tap="submit">验证并保存</button>
+    </view>-->
+</template>
+<script>
+import wepy from 'wepy';
+import localSave from '../api/saveLocal';
+import tips from '../utils/tips';
+import dav from '../api/davApi';
+
+export default class Demo extends wepy.page {
+  data = {
+    account: '',
+    password: ''
+  };
+  methods = {
+    inputAccount(e) {
+      this.account = e.detail.value;
+    },
+    inputPassword(e) {
+      this.password = e.detail.value;
+    },
+    async submit() {
+      if (this.account && this.password) {
+        if (!(await dav.testAccount(this.account, this.password))) {
+          tips.toastErr('账号或密码错误');
+          return;
+        }
+        tips.toastSuccess('配置成功！');
+        await localSave.saveAccount(this.account);
+        await localSave.savePassword(this.password);
+        await dav.delTestFile();
+        wx.navigateBack();
+      } else {
+        tips.toastErr('未完成输入');
+      }
+    },
+    showTutorial() {
+      wx.navigateTo({
+        url: 'tutorial'
+      });
+    }
+  };
+}
+</script>

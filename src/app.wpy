@@ -1,4 +1,6 @@
 <style lang="less">
+@import "style/weui.less";
+@import "style/base.less";
 </style>
 
 <script>
@@ -13,7 +15,7 @@ export default class extends wepy.app {
   config = {
     pages: [
       'pages/index',
-      'pages/setJGY',
+      'pages/setting',
       'pages/tutorial'
     ],
     window: {
