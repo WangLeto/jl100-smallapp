@@ -25,11 +25,19 @@ const accountExists = async function() {
 };
 
 const saveRecord = async function(record) {
+  if (typeof record !== 'string') {
+    record = JSON.stringify(record);
+  }
   await wx.setStorageSync(dbKeys.record, record);
 };
 
-const getRecord = async function() {
-  return (await wx.getStorageSync(dbKeys.record));
+const getRecordParsed = async function() {
+  let str = await wx.getStorageSync(dbKeys.record);
+  if (!str) {
+    await saveRecord([]);
+    return [];
+  }
+  return JSON.parse(str);
 };
 
 module.exports = {
@@ -39,5 +47,5 @@ module.exports = {
   getPassword,
   accountExists,
   saveRecord,
-  getRecord
+  getRecordParsed
 };

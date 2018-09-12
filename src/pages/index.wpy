@@ -3,6 +3,8 @@
 <template>
   <view class="main">
     <text>{{text}}</text>
+    <calendar binddayClick="dayClick"
+              days-color="{{daysStyle}}"></calendar>
     <button @tap="goJGY">配置坚果云</button>
   </view>
 </template>
@@ -13,13 +15,22 @@ import dav from '../api/davApi';
 import { accountExists } from '../api/saveLocal';
 import zip from 'lz-string';
 
+const MONTHS = ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May.', 'June.', 'July.', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'];
 export default class Index extends wepy.page {
   config = {
-    navigationBarTitleText: 'test'
+    navigationBarTitleText: 'test',
+    usingComponents: {
+      calendar: 'plugin://calendar/calendar'
+    }
   };
 
   data = {
-    text: 'blank'
+    text: 'blank',
+    year: new Date().getFullYear(),      // 年份
+    month: new Date().getMonth() + 1,    // 月份
+    day: new Date().getDate(),
+    str: MONTHS[new Date().getMonth()],  // 月份字符串
+    daysStyle: null
   };
 
   computed = {};
@@ -29,6 +40,9 @@ export default class Index extends wepy.page {
       wx.navigateTo({
         url: 'setJGY'
       });
+    },
+    dayClick(e) {
+      console.log(e.detail);
     }
   };
 
@@ -38,6 +52,25 @@ export default class Index extends wepy.page {
       console.log(this.text);
       this.$apply();
     }
+    this.test();
+  }
+
+  test() {
+    const days_count = new Date(this.data.year, this.data.month, 0).getDate();
+    let demo1_days_style = new Array;
+    for (let i = 1; i <= days_count; i++) {
+      if (parseInt(Math.random() * 100) > 50) {
+        demo1_days_style.push({
+          month: 'current', day: i, color: 'white', background: '#8497ee'
+        });
+      } else {
+        demo1_days_style.push({
+          month: 'current', day: i, color: 'black'
+        });
+      }
+    }
+    console.log(demo1_days_style);
+    this.daysStyle = demo1_days_style;
   }
 }
 </script>

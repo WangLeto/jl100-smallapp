@@ -2,7 +2,7 @@ import wepy from 'wepy';
 import base64 from 'base64-utf8';
 import configure from './configure';
 import saveLocal from './saveLocal';
-import _ from 'lodash';
+import zip from 'lz-string';
 
 const apiRoot = configure.apiRoot;
 const fileName = configure.fileName;
@@ -42,10 +42,19 @@ const request = async (params = {}, fail_fun = null, success_fun = null) => {
 };
 
 const getAsync = async (authInfo = null) => {
-  return (await request({
+  let r = await request({
     authInfo: authInfo
-  })).data;
+  });
+  if (r.statusCode === 404) {
+    return '';
+  }
+  let str = r.data;
+  console.log(str);
+  let unzipStr = zip.decompress(str);
+  console.log(unzipStr);
+  return unzipStr;
 };
+
 const putAsync = async (str, autoInfo = null) => {
   return await request({
     method: 'PUT',
@@ -53,6 +62,7 @@ const putAsync = async (str, autoInfo = null) => {
     authInfo: autoInfo
   });
 };
+
 const put = (str) => {
   request({
     method: 'PUT',
@@ -78,13 +88,11 @@ const delTestFile = async () => {
   });
 };
 
-const initFile = async () => {
-  await putAsync('');
-};
-
 const uploadLocal = async () => {
-  let record = await saveLocal.getRecord();
-  await putAsync(record);
+  let record = await saveLocal.getRecordParsed();
+  let str = zip.compress(JSON.stringify(record));
+  console.log(str);
+  await putAsync(str);
 };
 
 module.exports = {
@@ -93,6 +101,5 @@ module.exports = {
   putAsync,
   testAccount,
   delTestFile,
-  initFile,
   uploadLocal
 };
