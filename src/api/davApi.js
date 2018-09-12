@@ -49,18 +49,13 @@ const getStrAsync = async (authInfo = null) => {
   if (r.statusCode === 404) {
     return '';
   }
-  console.log(r.data);
   let str = zip.decompress(r.data);
-  console.log(str);
   return str;
 };
 
 const putStrAsync = async (str, autoInfo = null) => {
-  // 测试：
-  // str = str.replace('15', '16');
   console.log(str);
   str = zip.compress(str);
-  console.log(str);
   return await request({
     method: 'PUT',
     data: str,

@@ -1,7 +1,7 @@
 import saveLocal from '../api/saveLocal';
 import _ from 'lodash';
 import dav from '../api/davApi';
-import zip from 'lz-string';
+import tips from './tips';
 
 // 数据格式：{timestamp: 155xxx, items: [{d: '18-09-02', t: 0, w: 'bala'}, {}]}
 
@@ -23,7 +23,6 @@ const addRecord = async function(year, month, day, times, text = '') {
 
 const getRecords = async function() {
   let str = await dav.getStrAsync();
-  console.log(str);
   // 文件被删，等待重建
   if (!str) {
     return;
@@ -32,11 +31,11 @@ const getRecords = async function() {
   let records = JSON.parse(str);
   let localRecords = await saveLocal.getRecordParsed();
   if (records.timestamp > localRecords.timestamp) {
-    showModal();
+    showModal(records, localRecords);
   }
 };
 
-const showModal = function() {
+const showModal = function(cloudRecords, localRecords) {
   wx.showModal({
     title: '云端备份较新',
     content: '发现云端备份为更新数据，选择保留本地数据，或以云端为准',
@@ -49,28 +48,38 @@ const showModal = function() {
           content: '即将使用云端覆盖本地数据',
           success: function(res) {
             if (res.confirm) {
-
+              chooseData(cloudRecords, localRecords);
             } else {
-              showModal();
+              showModal(cloudRecords, localRecords);
             }
           }
-        })
+        });
       } else {
         wx.showModal({
           title: '是否确认？',
           content: '即将使用本地数据覆盖云端',
           success: function(res) {
             if (res.confirm) {
-
+              chooseData(cloudRecords, localRecords, false);
             } else {
-              showModal();
+              showModal(cloudRecords, localRecords);
             }
           }
-        })
+        });
       }
     }
   });
-}
+};
+
+const chooseData = async function(cloudRecords, localRecords, keepCloud = true) {
+  tips.loading('正在处理');
+  if (keepCloud) {
+    await saveLocal.saveRecord(cloudRecords);
+  } else {
+    await dav.putStrAsync(JSON.stringify(localRecords));
+  }
+  tips.hideLoading();
+};
 
 // 重构云端文件
 const rebuildCloudBackup = async function() {
@@ -81,7 +90,7 @@ const rebuildCloudBackup = async function() {
     saveLocal.saveRecord(records),
     dav.putStrAsync(JSON.stringify(records))
   ]);
-}
+};
 
 const initRecordsInCase = (records) => {
   if (!records || !records.timestamp) {
