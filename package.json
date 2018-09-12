@@ -18,9 +18,10 @@
   "license": "MIT",
   "dependencies": {
     "base64-utf8": "^0.1.8",
+    "lodash": "^4.17.10",
+    "lz-string": "^1.4.4",
     "wepy": "^1.6.0",
-    "wepy-async-function": "^1.4.6",
-    "wepy-com-toast": "^1.0.2"
+    "wepy-async-function": "^1.4.6"
   },
   "devDependencies": {
     "babel-eslint": "^7.2.1",

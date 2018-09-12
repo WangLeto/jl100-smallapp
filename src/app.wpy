@@ -4,11 +4,16 @@
 <script>
 import wepy from 'wepy';
 import 'wepy-async-function';
+import _ from 'lodash';
+import tips from './utils/tips';
+import dav from './api/davApi';
+import { mountLodash } from './utils/tools';
 
 export default class extends wepy.app {
   config = {
     pages: [
-      'pages/index'
+      'pages/index',
+      'pages/setJGY'
     ],
     window: {
       backgroundTextStyle: 'light',
@@ -26,9 +31,39 @@ export default class extends wepy.app {
     super();
     this.use('requestfix');
     this.use('promisify');
+    // 拦截request请求
+    this.intercept('request', {
+      config(p) {
+        return p;
+      },
+
+      // 请求成功后的回调函数
+      success(p) {
+        return p;
+      },
+
+      fail(p) {
+        return p;
+      },
+
+      async complete(p) {
+        if (p.statusCode === 404) {
+          if (p.data.indexOf('The file was deleted')) {
+            tips.loading('正在重构云端文件');
+            await dav.initFile();
+            tips.hideLoading();
+            tips.loading('正在上传本地数据');
+            await dav.uploadLocal();
+            tips.hideLoading();
+          }
+        }
+      }
+    });
   }
 
   onLaunch() {
+    mountLodash();
+    console.log(_.sleep);
   }
 }
 </script>

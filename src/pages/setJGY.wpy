@@ -1,11 +1,44 @@
 <style></style>
 <template>
-  <view></view>
+  <view>
+    <input type="text" placeholder="账号" @input="inputAccount"/>
+    <input type="password" placeholder="应用密码" @input="inputPassword"/>
+    <button @tap="submit">确认</button>
+  </view>
 </template>
 <script>
 import wepy from 'wepy';
+import localSave from '../api/saveLocal';
+import tips from '../utils/tips';
+import dav from '../api/davApi';
 
 export default class Demo extends wepy.page {
-  
+  data = {
+    account: '',
+    password: ''
+  };
+  methods = {
+    inputAccount(e) {
+      this.account = e.detail.value;
+    },
+    inputPassword(e) {
+      this.password = e.detail.value;
+    },
+    async submit() {
+      if (this.account && this.password) {
+        if (!(await dav.testAccount(this.account, this.password))) {
+          tips.toastErr('账号或密码错误');
+          return;
+        }
+        tips.toastSuccess('配置成功！');
+        await localSave.saveAccount(this.account);
+        await localSave.savePassword(this.password);
+        await dav.delTestFile();
+        wx.navigateBack();
+      } else {
+        tips.toastErr('未完成输入');
+      }
+    }
+  };
 }
 </script>

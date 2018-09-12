@@ -3,20 +3,19 @@
 <template>
   <view class="main">
     <text>{{text}}</text>
+    <button @tap="goJGY">配置坚果云</button>
   </view>
 </template>
 
 <script>
 import wepy from 'wepy';
-import Toast from 'wepy-com-toast';
-import { getAsync, putAsync } from '../api/davApi';
+import dav from '../api/davApi';
+import { accountExists } from '../api/saveLocal';
+import zip from 'lz-string';
 
 export default class Index extends wepy.page {
   config = {
     navigationBarTitleText: 'test'
-  };
-  components = {
-    toast: Toast
   };
 
   data = {
@@ -26,22 +25,19 @@ export default class Index extends wepy.page {
   computed = {};
 
   methods = {
-    toast() {
-      let promise = this.$invoke('toast', 'show', {
-        title: '自定义标题',
-        img: 'https://raw.githubusercontent.com/kiinlam/wetoast/master/images/star.png'
-      });
-      promise.then((d) => {
-        console.log('toast done');
+    goJGY() {
+      wx.navigateTo({
+        url: 'setJGY'
       });
     }
   };
 
   async onLoad() {
-    await putAsync('fuck');
-    this.text = await getAsync();
-    console.log(this.text);
-    this.$apply();
+    if (await accountExists()) {
+      this.text = await dav.getAsync();
+      console.log(this.text);
+      this.$apply();
+    }
   }
 }
 </script>

@@ -1,29 +1,32 @@
 import wepy from 'wepy';
 import base64 from 'base64-utf8';
 import configure from './configure';
-import localSave from './localSave';
+import saveLocal from './saveLocal';
+import _ from 'lodash';
 
 const apiRoot = configure.apiRoot;
 const fileName = configure.fileName;
 
-const getAuthInfo = async () => {
-  let info = 'Basic ';
-  let account = localSave.getAccount();
-  let password = localSave.getPassword();
-  if (!account || !password) {
-    return null;
+const getAuthInfo = async (account, password) => {
+  if (!account) {
+    account = await saveLocal.getAccount();
+    password = await saveLocal.getPassword();
   }
-  return info + base64.encode(account + ':' + password);
+  // console.log('account:' + account, 'password:' + password);
+  return 'Basic ' + base64.encode(account + ':' + password);
 };
 
 const request = async (params = {}, fail_fun = null, success_fun = null) => {
-  let authInfo = await await getAuthInfo();
+  let authInfo = params.authInfo;
+  if (!authInfo) {
+    authInfo = await getAuthInfo();
+  }
   if (!authInfo) {
     fail_fun();
     return;
   }
   let requestContent = {
-    url: apiRoot + fileName,
+    url: params.url || apiRoot + fileName,
     method: params.method || 'GET',
     data: params.data || {},
     header: {
@@ -38,13 +41,16 @@ const request = async (params = {}, fail_fun = null, success_fun = null) => {
   return result;
 };
 
-const getAsync = async () => {
-  return (await request()).data;
+const getAsync = async (authInfo = null) => {
+  return (await request({
+    authInfo: authInfo
+  })).data;
 };
-const putAsync = async (str) => {
+const putAsync = async (str, autoInfo = null) => {
   return await request({
     method: 'PUT',
-    data: str
+    data: str,
+    authInfo: autoInfo
   });
 };
 const put = (str) => {
@@ -54,8 +60,39 @@ const put = (str) => {
   });
 };
 
+const testAccount = async (account, password) => {
+  let statusCode = (await request({
+    method: 'PUT',
+    data: ' ',
+    url: apiRoot + configure.testFileName,
+    authInfo: await getAuthInfo(account, password)
+  })).statusCode;
+  console.log(statusCode);
+  return statusCode === 204 || statusCode === 201;
+};
+
+const delTestFile = async () => {
+  await request({
+    method: 'DELETE',
+    url: apiRoot + configure.testFileName
+  });
+};
+
+const initFile = async () => {
+  await putAsync('');
+};
+
+const uploadLocal = async () => {
+  let record = await saveLocal.getRecord();
+  await putAsync(record);
+};
+
 module.exports = {
   getAsync,
   put,
-  putAsync
+  putAsync,
+  testAccount,
+  delTestFile,
+  initFile,
+  uploadLocal
 };
