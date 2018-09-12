@@ -1,9 +1,15 @@
 <style lang="less">
+@import "../style/calendar.less";
 </style>
 <template>
   <view class="main">
-    <calendar binddayClick="dayClick"
-              days-color="{{daysStyle}}"></calendar>
+    <view class="demo5">
+      <calendar
+        calendar-style="calendar" header-style="header" board-style="board"
+        binddayClick="dayClick"
+        @nextMonth="nextMonth"
+        days-color="{{daysStyle}}"></calendar>
+    </view>
     <button @tap="goJGY">配置坚果云</button>
   </view>
 </template>
@@ -41,6 +47,27 @@ export default class Index extends wepy.page {
     },
     dayClick(e) {
       console.log(e.detail);
+      let detail = e.detail;
+      let item = {
+        month: 'current',
+        day: detail.day,
+        color: 'white',
+        background: '#58cc69'
+      };
+      console.log(item);
+      this.daysStyle.push(item);
+      this.$apply();
+    },
+    nextMonth(e) {
+      console.log(e.detail);
+      let detail = e.detail;
+      this.circleToday(detail.currentYear, detail.currentMonth);
+    },
+    prevMonth() {
+
+    },
+    dateChange() {
+
     }
   };
 
@@ -50,24 +77,53 @@ export default class Index extends wepy.page {
       this.$apply();
     }
     this.test();
+    this.circleToday();
+  }
+
+  // 圈出今天
+  circleToday(year, month) {
+    if ((!year && !month) || (year === this.year && month === this.month)) {
+      this.daysStyle.push({
+        month: 'current',
+        day: this.day,
+        background: '#ccc'
+      });
+    }
   }
 
   test() {
     const days_count = new Date(this.data.year, this.data.month, 0).getDate();
-    let demo1_days_style = new Array;
+    let style = [];
     for (let i = 1; i <= days_count; i++) {
-      if (parseInt(Math.random() * 100) > 50) {
-        demo1_days_style.push({
-          month: 'current', day: i, color: 'white', background: '#8497ee'
+      const date = new Date(this.data.year, this.data.month - 1, i);
+      if (date.getDay() == 0) {
+        style.push({
+          month: 'current', day: i, color: '#f488cd'
+        });
+      } else if (i == 12) {
+        style.push({
+          month: 'current', day: i, color: 'white', background: '#b49eeb'
+        });
+      } else if (i == 17) {
+        style.push({
+          month: 'current', day: i, color: 'white', background: '#f5a8f0'
+        });
+      } else if (i == 21) {
+        style.push({
+          month: 'current', day: i, color: 'white', background: '#aad4f5'
+        });
+      } else if (i == 25) {
+        style.push({
+          month: 'current', day: i, color: 'white', background: '#84e7d0'
         });
       } else {
-        demo1_days_style.push({
-          month: 'current', day: i, color: 'black'
+        style.push({
+          month: 'current', day: i, color: '#a18ada'
         });
       }
     }
-    console.log(demo1_days_style);
-    this.daysStyle = demo1_days_style;
+    this.daysStyle = style;
+    this.$apply();
   }
 }
 </script>
