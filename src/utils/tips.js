@@ -12,6 +12,14 @@ const toastSuccess = function(title) {
   });
 };
 
+const toastTip = function(title, duration = 1500) {
+  wx.showToast({
+    title: title,
+    image: '../assets/tip.png',
+    duration: duration
+  });
+};
+
 const toastText = function(str) {
   wx.showToast({
     title: str,
@@ -34,6 +42,7 @@ module.exports = {
   toastErr,
   toastSuccess,
   toastText,
+  toastTip,
   loading,
   hideLoading
 };

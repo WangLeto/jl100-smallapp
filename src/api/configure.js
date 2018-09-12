@@ -26,6 +26,10 @@ const colors = {
 };
 const chosenDayToken = '__isCurrentChosenDayHighlight';
 const timesArray = ['0 😘', '1 😑', '2 ☹️', '3 😣', '4 😵', '>=5 😱'];
+const settingKeys = {
+  mainKey: 'settings',
+  manualSync: 'manualSync'
+};
 
 module.exports = {
   apiRoot,
@@ -34,5 +38,6 @@ module.exports = {
   testFileName,
   colors,
   timesArray,
-  chosenDayToken
+  chosenDayToken,
+  settingKeys
 };

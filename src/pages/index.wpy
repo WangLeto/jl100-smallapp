@@ -36,6 +36,17 @@
   margin-top: -10px;
 }
 
+.sync {
+  height: 42px;
+  width: 42px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 0 10px 2px #ccc;
+  position: fixed;
+  bottom: 150px;
+  left: 20px;
+}
+
 </style>
 <template>
   <view class="main">
@@ -65,6 +76,7 @@
       <view class="buttons">
         <button @tap="goSetting">设置</button>
         <button @tap="goAnalyse">分析</button>
+        <image class="sync" src="../assets/sync.png" @tap="sync" wx:if="{{manualSync}}"></image>
       </view>
     </view>
   </view>
@@ -77,6 +89,7 @@ import { accountExists } from '../api/saveLocal';
 import _ from 'lodash';
 import { colors, timesArray, chosenDayToken } from '../api/configure';
 import recordManager from '../utils/recordManager';
+import settingManager from '../utils/settingManager';
 
 const MONTHS = ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May.', 'June.', 'July.', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'];
 export default class Index extends wepy.page {
@@ -97,7 +110,8 @@ export default class Index extends wepy.page {
     daysStyle: null,
     times: null,
     timesArray: timesArray,
-    records: null
+    records: null,
+    manualSync: false
   };
 
   computed = {
@@ -242,6 +256,10 @@ export default class Index extends wepy.page {
       obj[chosenDayToken] = true;
     }
     return obj;
+  }
+
+  async onShow() {
+    this.manualSync = await settingManager.get(settingManager.keys.manualSync);
   }
 }
 </script>

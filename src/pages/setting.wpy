@@ -2,7 +2,9 @@
 .page__bd {
   margin-bottom: 0;
 }
-
+.switch {
+  margin-top: 30px;
+}
 </style>
 <template>
   <view class="page__hd">
@@ -37,6 +39,15 @@
   <view class="button-sp-area">
     <button @tap="submit">验证并保存</button>
   </view>
+  <view class="weui-cells__title switch">开关</view>
+  <view class="weui-cells weui-cells_after-title">
+    <view class="weui-cell weui-cell_switch">
+      <view class="weui-cell__bd">手动同步</view>
+      <view class="weui-cell__ft">
+        <switch checked="{{manualSync}}" @change="changeSwitch" />
+      </view>
+    </view>
+  </view>
   <!--
     <view class="weui-cells__title">日历颜色标记设置</view>
     <view class="weui-cells weui-cells_after-title">
@@ -70,11 +81,13 @@ import wepy from 'wepy';
 import saveLocal from '../api/saveLocal';
 import tips from '../utils/tips';
 import dav from '../api/davApi';
+import settingManager from '../utils/settingManager';
 
 export default class Demo extends wepy.page {
   data = {
     account: '',
-    password: ''
+    password: '',
+    manualSync: false
   };
   methods = {
     inputAccount(e) {
@@ -92,7 +105,6 @@ export default class Demo extends wepy.page {
         tips.toastSuccess('配置成功！');
         await saveLocal.saveAccountPassword(this.account, this.password);
         await dav.delTestFile();
-        wx.navigateBack();
       } else {
         tips.toastErr('未完成输入');
       }
@@ -101,9 +113,28 @@ export default class Demo extends wepy.page {
       wx.navigateTo({
         url: 'tutorial'
       });
+    },
+    changeSwitch() {
+      this.manualSync = !this.manualSync;
+      console.log('aa')
+      if (this.manualSync) {
+        this.verifyAccount(settingManager.set, [settingManager.keys.manualSync, this.manualSync]);
+      }
     }
   };
+  async verifyAccount(suc_callback, args) {
+    let password = await saveLocal.getPassword();
+    if (!!password) {
+      suc_callback(...args);
+    } else {
+      tips.toastTip('请先完善账号', 2500);
+      this.manualSync = false;
+      this.$apply();
+    }
+  }
   async onLoad() {
+    this.manualSync = await settingManager.get(settingManager.keys.manualSync);
+    console.log(this.manualSync)
     let account = await saveLocal.getAccount();
     let password = await saveLocal.getPassword();
     if (account && password) {
