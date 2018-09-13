@@ -2,12 +2,15 @@
 .page__bd {
   /*margin-bottom: 0;*/
 }
+
 .weui-label {
   width: 60px;
 }
+
 .switch {
   margin-top: -30px;
 }
+
 .button-sp-area {
   margin-top: 30px;
 }

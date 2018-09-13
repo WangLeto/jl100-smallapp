@@ -14,7 +14,7 @@ const get = async function(key, _callback) {
     return defaultSetting(key);
   }
   return value;
-}
+};
 
 const set = async function(key, value) {
   // 监听者，预计用于tools里color的内存数据维护
@@ -26,20 +26,20 @@ const set = async function(key, value) {
   }
   records[key] = value;
   await wx.setStorageSync(keys.mainKey, JSON.stringify(records));
-}
+};
 
 const defaultSetting = function(key) {
   switch (key) {
   case keys.manualSync:
     return false;
   case keys.color1:
-    return '#f95368';
+    return '#8dd3bb';
   case keys.color2:
-    return '#48ff60';
+    return '#8e6391';
   case keys.timesArray:
     return ['0 😘', '1 😑', '2 ☹️', '3 😣', '4 😵', '>=5 😱'];
   }
-}
+};
 
 module.exports = {
   keys,

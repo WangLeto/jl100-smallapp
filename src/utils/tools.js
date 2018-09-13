@@ -10,7 +10,7 @@ const sleep = async function(seconds) {
 const getRainbowColor = function(color1, color2, colorsNum, index) {
   const rainbow = new Rainbow();
   rainbow.setSpectrum(color1, color2);
-  return rainbow.colorAt(index / colorsNum * 100);
+  return rainbow.colorAt(index / (colorsNum - 1) * 100);
 };
 
 const colorMaker = {

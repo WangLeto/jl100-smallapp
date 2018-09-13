@@ -1,6 +1,7 @@
 <style lang="less">
 @import "../style/calendar.less";
 
+@editButton: #2b6597;
 .main {
   display: flex;
   flex-direction: column;
@@ -17,8 +18,8 @@
 
 .edit-record {
   margin: 10px auto;
-  background: #ff4582;
-  box-shadow: 0 0 5px 1px #ff4582;
+  background: @editButton;
+  box-shadow: 0 0 5px 1px @editButton;
 }
 
 .buttons {
@@ -117,6 +118,10 @@ export default class Index extends wepy.page {
     todayTimes() {
       let times = this.getDayRecord(this.currentDay).t;
       if (!times) {
+        if (this.currentYear === this.year && this.currentMonth === this.month &&
+          this.currentDay === this.day) {
+          return '编辑今天的记录';
+        }
         return `编辑${this.currentMonth}月${this.currentDay}日记录`;
       } else {
         return this.timesArray[times];
@@ -228,11 +233,18 @@ export default class Index extends wepy.page {
     }
   }
 
-  // todo 重绘记录
   recover(removed) {
     const date = new Date(this.currentYear, this.currentMonth - 1, removed.day);
-    let color = date.getDay() === 0 ? colors.sunday : colors.normalDay;
-    this.daysStyle.push(this.generateDayStyle(removed.day, color));
+    let record = this.getDayRecord(removed.day);
+    if (record && record.t) {
+      this.daysStyle.push(this.generateDayStyle(removed.day, {
+        color: '#fff',
+        back: colorMaker.getColor(record.t)
+      }));
+    } else {
+      let color = date.getDay() === 0 ? colors.sunday : colors.normalDay;
+      this.daysStyle.push(this.generateDayStyle(removed.day, color));
+    }
   }
 
   refreshMonthStyle() {

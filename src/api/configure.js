@@ -8,12 +8,12 @@ const dbKeys = {
 };
 const colors = {
   currentChosen: {
-    color: 'white',
-    back: '#263238'
+    color: '#fff',
+    back: '#fff40c'
   },
   today: {
     color: 'white',
-    back: '#ccc'
+    back: '#d3e2e7'
   },
   normalDay: {
     color: '#a18ada',
