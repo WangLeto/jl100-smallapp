@@ -63,7 +63,7 @@
         days-color="{{daysStyle}}"></calendar>
       <view class="weui-cells__title">
         <view>选择了 {{currentYear}}年{{currentMonth}}月{{currentDay}}日</view>
-        <view>{{alterableDay?'　':'仅能编辑经过的日期'}}</view>
+        <view>{{alterableDay?'　':'仅能编辑今天或以前的日期'}}</view>
       </view>
     </view>
 
@@ -129,7 +129,7 @@ export default class Index extends wepy.page {
 
   isAlterable() {
     let current = new Date(this.currentYear, this.currentMonth - 1, this.currentDay);
-    let today = new Date(this.year, this.month - 1, this.day);
+    let today = new Date(this.year, this.month - 1, this.day + 1);
     return current.getTime() < today.getTime();
   }
 
@@ -162,6 +162,7 @@ export default class Index extends wepy.page {
       this.times = e.detail.value;
       let records = await recordManager.addRecord(this.currentYear, this.currentMonth, this.currentDay, this.times);
       console.log(records)
+      this.records = records;
       dav.putStr(JSON.stringify(records));
     },
     async sync() {

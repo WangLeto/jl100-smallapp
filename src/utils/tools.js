@@ -1,5 +1,5 @@
-import _ from 'lodash';
 import Rainbow from 'rainbowvis.js';
+import settingManager from './settingManager';
 
 const sleep = async function(seconds) {
   await setTimeout(() => {
@@ -12,14 +12,27 @@ const getRainbowColor = function(color1, color2, colorsNum, index) {
   return rainbow.colorAt(index / colorsNum * 100);
 };
 
-const mountLodash = () => {
-  let des = {
-    sleep: sleep,
-    getRainbowColor: getRainbowColor
-  };
-  Object.assign(_, des);
+const colorMaker = {
+  color1: '',
+  color2: '',
+  init: async function() {
+    this.color1 = await settingManager.get(settingManager.keys.color1, (key, value) => {
+      if (key === settingManager.keys.color1) {
+        this.color1 = value;
+        console.log('found color1 changes')
+      } else if (key === settingManager.keys.color2) {
+        this.color2 = value;
+        console.log('found color2 changes')
+      }
+    });
+    this.color2 = await settingManager.get(settingManager.keys.color2);
+  },
+  getColor: function(total, index) {
+    return getRainbowColor(this.color1, this.color2, total, index);
+  }
 };
 
-module.exports = {
-  mountLodash
+export {
+  sleep,
+  colorMaker
 };

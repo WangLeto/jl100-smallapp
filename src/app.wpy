@@ -6,10 +6,9 @@
 <script>
 import wepy from 'wepy';
 import 'wepy-async-function';
-import _ from 'lodash';
 import tips from './utils/tips';
 import recordManager from './utils/recordManager';
-import { mountLodash } from './utils/tools';
+import { colorMaker } from './utils/tools';
 
 export default class extends wepy.app {
   config = {
@@ -68,10 +67,10 @@ export default class extends wepy.app {
     });
   }
 
-  onLaunch() {
-    mountLodash();
+  async onLaunch() {
+    await colorMaker.init();
     for (let i = 0; i < 5; i++) {
-      let color = '#' + _.getRainbowColor('#f95368', '#48ff60', 5, i);
+      let color = '#' + colorMaker.getColor(5, i);
       console.log('%c Oh my heavens! ', 'background: ' + color + '; color: #fff');
     }
   }
