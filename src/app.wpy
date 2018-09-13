@@ -70,6 +70,10 @@ export default class extends wepy.app {
 
   onLaunch() {
     mountLodash();
+    for (let i = 0; i < 5; i++) {
+      let color = '#' + _.getRainbowColor('#f95368', '#48ff60', 5, i);
+      console.log('%c Oh my heavens! ', 'background: ' + color + '; color: #fff');
+    }
   }
 }
 </script>

@@ -20,6 +20,7 @@
     "base64-utf8": "^0.1.8",
     "lodash": "^4.17.10",
     "lz-string": "^1.4.4",
+    "rainbowvis.js": "^1.0.1",
     "wepy": "^1.6.0",
     "wepy-async-function": "^1.4.6"
   },
