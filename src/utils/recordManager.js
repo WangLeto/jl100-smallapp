@@ -30,8 +30,19 @@ const getRecords = async function() {
   console.log(str);
   let records = JSON.parse(str);
   let localRecords = await saveLocal.getRecordParsed();
-  if (records.timestamp > localRecords.timestamp) {
+  if (!localRecords) {
+    wx.showModal({
+      title: '发现云端备份',
+      content: '即将恢复备份到本地',
+      showCancel: false,
+      success: function() {
+        chooseData(records);
+      }
+    })
+  } else if (records.timestamp > localRecords.timestamp) {
     showModal(records, localRecords);
+  } else if (records.timestamp < localRecords.timestamp) {
+    chooseData(records, localRecords, false);
   }
 };
 
@@ -71,6 +82,17 @@ const showModal = function(cloudRecords, localRecords) {
   });
 };
 
+const showModalPromised = function(obj) {
+  return new Promise(function(resolve) {
+    obj = Object.assign(obj, {
+      success: function(res) {
+        resolve(res);
+      }
+    })
+    wx.showModal(obj);
+  });
+}
+
 const chooseData = async function(cloudRecords, localRecords, keepCloud = true) {
   tips.loading('正在处理');
   if (keepCloud) {
@@ -105,5 +127,6 @@ const initRecordsInCase = (records) => {
 module.exports = {
   addRecord,
   getRecords,
-  rebuildCloudBackup
+  rebuildCloudBackup,
+  showModalPromised
 };

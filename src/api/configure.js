@@ -28,7 +28,9 @@ const chosenDayToken = '__isCurrentChosenDayHighlight';
 const timesArray = ['0 😘', '1 😑', '2 ☹️', '3 😣', '4 😵', '>=5 😱'];
 const settingKeys = {
   mainKey: 'settings',
-  manualSync: 'manualSync'
+  manualSync: 'manualSync',
+  color1: 'color1',
+  color2: 'color2'
 };
 
 module.exports = {

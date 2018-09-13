@@ -52,7 +52,7 @@
     </view>
   </view>
   <view class="button-sp-area">
-    <button @tap="submit">验证并保存</button>
+    <button @tap="submit">验证账号</button>
   </view>
   <!--
     <view class="weui-cells__title">日历颜色标记设置</view>
@@ -88,6 +88,7 @@ import saveLocal from '../api/saveLocal';
 import tips from '../utils/tips';
 import dav from '../api/davApi';
 import settingManager from '../utils/settingManager';
+import recordManager from '../utils/recordManager';
 
 export default class Demo extends wepy.page {
   data = {
@@ -111,6 +112,7 @@ export default class Demo extends wepy.page {
         tips.toastSuccess('配置成功！');
         await saveLocal.saveAccountPassword(this.account, this.password);
         await dav.delTestFile();
+        recordManager.getRecords();
       } else {
         tips.toastErr('未完成输入');
       }

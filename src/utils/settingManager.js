@@ -26,6 +26,10 @@ const defaultSetting = function(key) {
   switch (key) {
   case keys.manualSync:
     return false;
+  case keys.color1:
+    return '#f95368';
+  case keys.color2:
+    return '#48ff60';
   }
 }
 

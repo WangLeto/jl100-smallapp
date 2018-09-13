@@ -164,6 +164,12 @@ export default class Index extends wepy.page {
       console.log(records)
       dav.putStr(JSON.stringify(records));
     },
+    async sync() {
+      console.log(await recordManager.showModalPromised({
+        title: 'test',
+        content: 'test promised show modal',
+      }));
+    },
     goAnalyse() {
       wx.navigateTo({
         url: 'analyse'

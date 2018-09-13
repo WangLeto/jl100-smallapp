@@ -31,8 +31,7 @@ const saveRecord = async function(records) {
 const getRecordParsed = async function() {
   let str = await wx.getStorageSync(dbKeys.records);
   if (!str) {
-    await saveRecord([]);
-    return [];
+    return null;
   }
   return JSON.parse(str);
 };
