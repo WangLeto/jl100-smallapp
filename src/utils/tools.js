@@ -6,6 +6,7 @@ const sleep = async function(seconds) {
   }, 1000 * seconds);
 };
 
+// 性能改进
 const getRainbowColor = function(color1, color2, colorsNum, index) {
   const rainbow = new Rainbow();
   rainbow.setSpectrum(color1, color2);
@@ -15,6 +16,7 @@ const getRainbowColor = function(color1, color2, colorsNum, index) {
 const colorMaker = {
   color1: '',
   color2: '',
+  colorsNum: 0,
   init: async function() {
     this.color1 = await settingManager.get(settingManager.keys.color1, (key, value) => {
       if (key === settingManager.keys.color1) {
@@ -26,9 +28,10 @@ const colorMaker = {
       }
     });
     this.color2 = await settingManager.get(settingManager.keys.color2);
+    this.colorsNum = (await settingManager.get(settingManager.keys.timesArray)).length;
   },
-  getColor: function(total, index) {
-    return getRainbowColor(this.color1, this.color2, total, index);
+  getColor: function(index) {
+    return '#' + getRainbowColor(this.color1, this.color2, this.colorsNum, index);
   }
 };
 

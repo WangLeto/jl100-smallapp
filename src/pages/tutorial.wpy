@@ -4,6 +4,9 @@
 <template>
   <view>
     <view>
+      <view class="title">这是什么？</view>
+      <view class="list">由于此小程序没有后端服务器（充分保证用户隐私），因此可能会因为用户清理微信存储空间，或卸载微信导致数据丢失。
+        如果想要进行云端的数据备份，则需要借助坚果云的web dav功能（完全免费）。请先行注册坚果云账号，开启此web dav的方法如下。</view>
       <view class="title">坚果云第三方应用授权WebDAV开启方法</view>
       <view class="point">网页端</view>
       <view class="list">1. 打开坚果云官网（https://www.jianguoyun.com/）并登录你的坚果云账号</view>

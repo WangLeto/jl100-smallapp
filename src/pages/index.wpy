@@ -15,9 +15,8 @@
   margin: 20px auto;
 }
 
-
 .edit-record {
-  margin: 20rpx auto;
+  margin: 10px auto;
   background: #ff4582;
   box-shadow: 0 0 5px 1px #ff4582;
 }
@@ -25,7 +24,7 @@
 .buttons {
   display: flex;
   justify-content: space-between;
-  margin: 10rpx -10rpx;
+  margin: 5px -5px;
   button {
     display: inline;
     width: 45%;
@@ -87,9 +86,10 @@ import wepy from 'wepy';
 import dav from '../api/davApi';
 import { accountExists } from '../api/saveLocal';
 import _ from 'lodash';
-import { colors, timesArray, chosenDayToken } from '../api/configure';
+import { colors, chosenDayToken } from '../api/configure';
 import recordManager from '../utils/recordManager';
 import settingManager from '../utils/settingManager';
+import { colorMaker } from '../utils/tools';
 
 const MONTHS = ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May.', 'June.', 'July.', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'];
 export default class Index extends wepy.page {
@@ -108,18 +108,18 @@ export default class Index extends wepy.page {
     currentDay: new Date().getDate(),
     str: MONTHS[new Date().getMonth()],  // 月份字符串
     daysStyle: null,
-    times: null,
-    timesArray: timesArray,
+    timesArray: null,
     records: null,
     manualSync: false
   };
 
   computed = {
     todayTimes() {
-      if (!this.times) {
+      let times = this.getDayRecord(this.currentDay).t;
+      if (!times) {
         return `编辑${this.currentMonth}月${this.currentDay}日记录`;
       } else {
-        return this.timesArray[this.times];
+        return this.timesArray[times];
       }
     },
     alterableDay() {
@@ -159,16 +159,15 @@ export default class Index extends wepy.page {
       this.drawChosenDayAndToday();
     },
     async chooseTimes(e) {
-      this.times = e.detail.value;
-      let records = await recordManager.addRecord(this.currentYear, this.currentMonth, this.currentDay, this.times);
-      console.log(records)
+      let records = await recordManager.addRecord(this.currentYear, this.currentMonth, this.currentDay, e.detail.value);
+      console.log(records);
       this.records = records;
       dav.putStr(JSON.stringify(records));
     },
     async sync() {
       console.log(await recordManager.showModalPromised({
-        title: 'test',
-        content: 'test promised show modal',
+        title: '开发中',
+        content: '手动同步功能尚在开发，敬请谅解'
       }));
     },
     goAnalyse() {
@@ -181,6 +180,7 @@ export default class Index extends wepy.page {
   async onLoad() {
     if (await accountExists()) {
       this.records = await recordManager.getRecords();
+      console.log('got records');
     }
     this.refreshMonthStyle();
     this.drawChosenDayAndToday();
@@ -236,6 +236,7 @@ export default class Index extends wepy.page {
   }
 
   refreshMonthStyle() {
+    console.log('refresh month style');
     const days_count = new Date(this.currentYear, this.currentMonth, 0).getDate();
     let style = [];
     for (let i = 1; i <= days_count; i++) {
@@ -246,10 +247,47 @@ export default class Index extends wepy.page {
         style.push(this.generateDayStyle(i, colors.normalDay));
       }
     }
+
+    // 遍历并绘制记录
+    let year = this.currentYear % 100 + '';
+    let month = this.currentMonth > 9 ? '' + this.currentMonth : '0' + this.currentMonth;
+    _.forEach(this.records.items, item => {
+      let dateToken = item.d;
+      let tokens = dateToken.split('-');
+      if (tokens[0] === year && tokens[1] === month) {
+        let day = parseInt(tokens[2]);
+        this.eraseDay(day, style);
+        style.push(this.generateDayStyle(day, {
+          color: '#fff',
+          back: colorMaker.getColor(item.t)
+        }));
+      }
+    });
+
     // 重绘选择的日期
     this.eraseDay(this.currentDay, style);
     style.push(this.generateDayStyle(this.currentDay, colors.currentChosen));
+
     this.daysStyle = style;
+  }
+
+  // 获取当前月某天的记录
+  getDayRecord(day) {
+    if (!this.records) {
+      return {};
+    }
+    let record = {};
+    let year = this.currentYear % 100 + '';
+    let month = this.currentMonth > 9 ? '' + this.currentMonth : '0' + this.currentMonth;
+    _.forEach(this.records.items, item => {
+      let dateToken = item.d;
+      let tokens = dateToken.split('-');
+      if (tokens[0] === year && tokens[1] === month && tokens[2] === day + '') {
+        record = item;
+        return false;
+      }
+    });
+    return record;
   }
 
   generateDayStyle(day, colors, chosenHighlight = false) {
@@ -266,6 +304,7 @@ export default class Index extends wepy.page {
   }
 
   async onShow() {
+    this.timesArray = await settingManager.get(settingManager.keys.timesArray);
     this.manualSync = await settingManager.get(settingManager.keys.manualSync);
     this.$apply();
   }

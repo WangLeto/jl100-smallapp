@@ -9,7 +9,7 @@ const dbKeys = {
 const colors = {
   currentChosen: {
     color: 'white',
-    back: '#58cc69'
+    back: '#263238'
   },
   today: {
     color: 'white',
@@ -25,12 +25,12 @@ const colors = {
   }
 };
 const chosenDayToken = '__isCurrentChosenDayHighlight';
-const timesArray = ['0 😘', '1 😑', '2 ☹️', '3 😣', '4 😵', '>=5 😱'];
 const settingKeys = {
   mainKey: 'settings',
   manualSync: 'manualSync',
   color1: 'color1',
-  color2: 'color2'
+  color2: 'color2',
+  timesArray: 'timesArray'
 };
 
 module.exports = {
@@ -39,7 +39,6 @@ module.exports = {
   dbKeys,
   testFileName,
   colors,
-  timesArray,
   chosenDayToken,
   settingKeys
 };

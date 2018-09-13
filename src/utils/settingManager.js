@@ -36,6 +36,8 @@ const defaultSetting = function(key) {
     return '#f95368';
   case keys.color2:
     return '#48ff60';
+  case keys.timesArray:
+    return ['0 😘', '1 😑', '2 ☹️', '3 😣', '4 😵', '>=5 😱'];
   }
 }
 
