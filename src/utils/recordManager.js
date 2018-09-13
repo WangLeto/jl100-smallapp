@@ -28,7 +28,7 @@ const getRecords = async function() {
     return;
   }
   console.log(str);
-  let records = JSON.parse(str);
+  let cloudRecords = JSON.parse(str);
   let localRecords = await saveLocal.getRecordParsed();
   if (!localRecords) {
     wx.showModal({
@@ -36,50 +36,44 @@ const getRecords = async function() {
       content: '即将恢复备份到本地',
       showCancel: false,
       success: function() {
-        chooseData(records);
+        keepData(cloudRecords);
       }
-    })
-  } else if (records.timestamp > localRecords.timestamp) {
-    showModal(records, localRecords);
-  } else if (records.timestamp < localRecords.timestamp) {
-    chooseData(records, localRecords, false);
+    });
+  } else if (cloudRecords.timestamp > localRecords.timestamp) {
+    showModal(cloudRecords, localRecords);
+  } else if (cloudRecords.timestamp < localRecords.timestamp) {
+    keepData(localRecords, false);
   }
 };
 
-const showModal = function(cloudRecords, localRecords) {
-  wx.showModal({
+const showModal = async function(cloudRecords, localRecords) {
+  let res = await showModalPromised({
     title: '云端备份较新',
     content: '发现云端备份为更新数据，选择保留本地数据，或以云端为准',
     cancelText: '保留本地',
-    confirmText: '采用云端',
-    success: function(res) {
-      if (res.confirm) {
-        wx.showModal({
-          title: '是否确认？',
-          content: '即将使用云端覆盖本地数据',
-          success: function(res) {
-            if (res.confirm) {
-              chooseData(cloudRecords, localRecords);
-            } else {
-              showModal(cloudRecords, localRecords);
-            }
-          }
-        });
-      } else {
-        wx.showModal({
-          title: '是否确认？',
-          content: '即将使用本地数据覆盖云端',
-          success: function(res) {
-            if (res.confirm) {
-              chooseData(cloudRecords, localRecords, false);
-            } else {
-              showModal(cloudRecords, localRecords);
-            }
-          }
-        });
-      }
-    }
+    confirmText: '采用云端'
   });
+  if (res.confirm) {
+    let res2 = await showModalPromised({
+      title: '是否确认？',
+      content: '即将使用云端覆盖本地数据'
+    });
+    if (res2.confirm) {
+      return await keepData(cloudRecords);
+    } else {
+      return await showModal(cloudRecords, localRecords);
+    }
+  } else {
+    let res2 = await showModalPromised({
+      title: '是否确认？',
+      content: '即将使用本地数据覆盖云端'
+    });
+    if (res2.confirm) {
+      return await keepData(localRecords, false);
+    } else {
+      return showModal(cloudRecords, localRecords);
+    }
+  }
 };
 
 const showModalPromised = function(obj) {
@@ -88,19 +82,20 @@ const showModalPromised = function(obj) {
       success: function(res) {
         resolve(res);
       }
-    })
+    });
     wx.showModal(obj);
   });
-}
+};
 
-const chooseData = async function(cloudRecords, localRecords, keepCloud = true) {
+const keepData = async function(records, keepCloud = true) {
   tips.loading('正在处理');
   if (keepCloud) {
-    await saveLocal.saveRecord(cloudRecords);
+    await saveLocal.saveRecord(records);
   } else {
-    await dav.putStrAsync(JSON.stringify(localRecords));
+    await dav.putStrAsync(JSON.stringify(records));
   }
   tips.hideLoading();
+  return records;
 };
 
 // 重构云端文件
