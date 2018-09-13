@@ -25,25 +25,24 @@ const getRecords = async function() {
   let str = await dav.getStrAsync();
   // 文件被删，等待重建
   if (!str) {
-    return;
+    return await saveLocal.getRecordParsed();
   }
   console.log(str);
   let cloudRecords = JSON.parse(str);
   let localRecords = await saveLocal.getRecordParsed();
   if (!localRecords) {
-    wx.showModal({
+    await showModalPromised({
       title: '发现云端备份',
       content: '即将恢复备份到本地',
-      showCancel: false,
-      success: function() {
-        keepData(cloudRecords);
-      }
+      showCancel: false
     });
+    return await keepData(cloudRecords);
   } else if (cloudRecords.timestamp > localRecords.timestamp) {
-    showModal(cloudRecords, localRecords);
+    return await showModal(cloudRecords, localRecords);
   } else if (cloudRecords.timestamp < localRecords.timestamp) {
-    keepData(localRecords, false);
+    return await keepData(localRecords, false);
   }
+  return localRecords;
 };
 
 const showModal = async function(cloudRecords, localRecords) {
