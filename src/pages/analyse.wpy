@@ -6,32 +6,28 @@
     <view class="page__title">分析</view>
     <view class="page__desc">统计你的习惯</view>
   </view>
-  <view class="title"></view>
+  <view class="page__desc">
+    <radio-group @change="radioChange">
+      <radio checked="{{radio === CHART_SHOW_ALL}}" value="0">全部</radio>
+      <radio checked="{{radio === CHART_SHOW_YEAR}}" value="1">年度</radio>
+      <radio checked="{{radio === CHART_SHOW_MONTH}}" value="2">月度</radio>
+    </radio-group>
+    <picker @change="chooseAnalysing1" value="{{chartYearPickerChoice}}" range="{{range}}"
+            wx:if="{{radio === CHART_SHOW_YEAR}}">
+      <button class="">
+        {{range[chartYearPickerChoice]}}
+      </button>
+    </picker>
+    <picker @change="chooseAnalysing1" start="{{chartMonthPickerStart}}" end="{{chartMonthPickerEnd}}" mode="date"
+            value="{{chartMonthPickerChoice}}"
+            wx:if="{{radio === CHART_SHOW_MONTH}}" fields="month">
+      <button class="">
+        {{chartMonthPickerChoice}}
+      </button>
+    </picker>
+  </view>
   <view class="weui-cells__title">频次统计图</view>
   <canvas canvas-id="columnChart"></canvas>
-  <view class="page__desc">
-    <picker @change="chooseAnalysing1" value="{{chart1YearPickerChoice}}" range="{{range1}}"
-            wx:if="{{radio1 === CHART_SHOW_YEAR}}">
-      <button class="">
-        {{range1[chart1YearPickerChoice]}}
-      </button>
-    </picker>
-    <picker @change="chooseAnalysing1" start="{{chart1MonthPickerStart}}" end="{{chart1MonthPickerEnd}}" mode="date"
-            value="{{chart1MonthPickerChoice}}"
-            wx:if="{{radio1 === CHART_SHOW_MONTH}}" fields="month">
-      <button class="">
-        {{chart1MonthPickerChoice}}
-      </button>
-    </picker>
-    <radio-group @change="radio1Change">
-      <radio checked="{{radio1 === CHART_SHOW_ALL}}" value="0">全部</radio>
-
-      <radio checked="{{radio1 === CHART_SHOW_YEAR}}" value="1">年度</radio>
-
-      <radio checked="{{radio1 === CHART_SHOW_MONTH}}" value="2">月度</radio>
-
-    </radio-group>
-  </view>
   <canvas canvas-id="lineChart"></canvas>
 </template>
 <script>
@@ -39,6 +35,7 @@ import wepy from 'wepy';
 import _ from 'lodash';
 import wxCharts from '../utils/wxcharts-min';
 import saveLocal from '../api/saveLocal';
+import settingManager from '../utils/settingManager';
 
 let columnChart = null;
 let lineChart = null;
@@ -51,63 +48,105 @@ export default class Analyse extends wepy.page {
     // 柱状图：次数直方统计
     columnData: null,
     // 直方图选择视角：0 全部 1 年度 2 月度
-    radio1: 0,
-    range1: [],
-    range2: [],
-    chart1MonthPickerStart: null,
-    chart1MonthPickerEnd: null,
-    chart1YearPickerChoice: 0,
-    chart1MonthPickerChoice: ''
+    radio: 0,
+    range: [],
+    chartMonthPickerStart: null,
+    chartMonthPickerEnd: null,
+    chartYearPickerChoice: 0,
+    chartMonthPickerChoice: '',
+    // 复合设置
+    times: null
   };
 
   computed = {};
 
   methods = {
-    radio1Change(e) {
-      this.radio1 = parseInt(e.detail.value);
+    radioChange(e) {
+      this.radio = parseInt(e.detail.value);
       let dateToken = _.sortBy(_.uniqBy(_.map(this.recordsItems, e => {
-        return e.d.slice(0, this.radio1 === this.CHART_SHOW_YEAR ? 2 : 5);
+        return e.d.slice(0, this.radio === this.CHART_SHOW_YEAR ? 2 : 5);
       }))).reverse();
       console.log(dateToken);
-      if (this.radio1 === this.CHART_SHOW_YEAR) {
-        this.range1 = _.map(dateToken, e => {
+      if (this.radio === this.CHART_SHOW_YEAR) {
+        this.range = _.map(dateToken, e => {
           return '20' + e;
         });
       } else {
-        this.chart1MonthPickerEnd = '20' + dateToken[0] + '-01';
-        this.chart1MonthPickerStart = '20' + dateToken[dateToken.length - 1] + '-01';
-        if (this.chart1MonthPickerChoice === '') {
-          this.chart1MonthPickerChoice = '20' + dateToken[0];
+        this.chartMonthPickerEnd = '20' + dateToken[0] + '-01';
+        this.chartMonthPickerStart = '20' + dateToken[dateToken.length - 1] + '-01';
+        if (this.chartMonthPickerChoice === '') {
+          this.chartMonthPickerChoice = '20' + dateToken[0];
         }
       }
+      this.refreshColumn();
     },
     chooseAnalysing1(e) {
       let choice = e.detail.value;
-      if (this.radio1 === this.CHART_SHOW_YEAR) {
-        this.chart1YearPickerChoice = parseInt(choice);
+      if (this.radio === this.CHART_SHOW_YEAR) {
+        this.chartYearPickerChoice = parseInt(choice);
       } else {
-        this.chart1MonthPickerChoice = choice;
+        this.chartMonthPickerChoice = choice;
       }
+      this.refreshColumn();
     }
   };
 
+  refreshColumn() {
+    let records = this.recordsItems;
+    if (this.radio === this.CHART_SHOW_YEAR) {
+      let year = this.range[this.chartYearPickerChoice].slice(2);
+      // type: string
+      records = _.filter(records, e => {
+        return e.d.slice(0, 2) === year;
+      });
+    } else if (this.radio === this.CHART_SHOW_MONTH) {
+      let yearMonth = this.chartMonthPickerChoice.slice(2);
+      records = _.filter(records, e => {
+        return e.d.slice(0, 5) === yearMonth;
+      });
+    }
+    let newData = this.generateColumnSeries(this.calcFrequency(records));
+    columnChart.updateData({
+      series: newData
+    });
+  }
+
+  calcFrequency(filteredRecordsItems) {
+    let frequency = Array.from(new Array(this.times.length), () => 0);
+    _.forEach(filteredRecordsItems, e => {
+      _.forEach(frequency, (f, idx) => {
+        if (idx === parseInt(e.t)) {
+          frequency[idx]++;
+        }
+      });
+    });
+    return frequency;
+  }
+
+  generateColumnSeries(frequency) {
+    return [{
+      name: '频次',
+      data: frequency,
+      format: val => val + '次'
+    }];
+  }
+
   async onLoad() {
     this.recordsItems = (await saveLocal.getRecordParsed()).items;
+    this.times = await settingManager.get(settingManager.keys.timesArray);
+    let timesShow = _.map(this.times, 'text');
+    let frequency = await this.calcFrequency(this.recordsItems);
+    let series = this.generateColumnSeries(frequency);
     columnChart = new wxCharts({
       animation: true,
       canvasId: 'columnChart',
       type: 'column',
-      categories: ['2012', '2013', '2014', '2015', '2016', '2017'],
-      series: [{
-        name: '成交量1',
-        data: [15, 20, 45, 37, 4, 80]
-      }, {
-        name: '成交量2',
-        data: [70, 40, 65, 100, 34, 18]
-      }],
+      categories: timesShow,
+      series: series,
       yAxis: {
+        title: '发生天数',
         format: function(val) {
-          return val + '万';
+          return val + '天';
         }
       },
       width: 350,
@@ -124,12 +163,6 @@ export default class Analyse extends wepy.page {
         format: function(val) {
           return val.toFixed(2) + '万';
         }
-      }, {
-        name: '成交量2',
-        data: [0.30, 0.37, 0.65, 0.78, 0.69, 0.94],
-        format: function(val) {
-          return val.toFixed(2) + '万';
-        }
       }],
       yAxis: {
         title: '成交金额 (万元)',
@@ -143,5 +176,7 @@ export default class Analyse extends wepy.page {
       background: '#f8f8f8'
     });
   }
+
+
 }
 </script>

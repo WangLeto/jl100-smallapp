@@ -1,52 +1,6 @@
 <style lang="less">
 @import "../style/calendar.less";
-
-@editButton: #2b6597;
-.main {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 25px 0;
-  box-sizing: border-box;
-}
-
-.weui-cells__title {
-  text-align: center;
-  max-width: 70%;
-  margin: 20px auto;
-}
-
-.edit-record {
-  margin: 10px auto;
-  background: @editButton;
-  box-shadow: 0 0 5px 1px @editButton;
-}
-
-.buttons {
-  display: flex;
-  justify-content: space-between;
-  margin: 5px -5px;
-  button {
-    display: inline;
-    width: 45%;
-  }
-}
-
-.button-sp-area {
-  margin-top: -10px;
-}
-
-.sync {
-  height: 42px;
-  width: 42px;
-  border-radius: 50%;
-  background: white;
-  box-shadow: 0 0 10px 2px #ccc;
-  position: fixed;
-  bottom: 150px;
-  left: 20px;
-}
-
+@import "../style/index";
 </style>
 <template>
   <view class="main">
@@ -68,9 +22,9 @@
     </view>
 
     <view class="button-sp-area">
-      <picker @change="chooseTimes" class="{{alterableDay ? '' : 'hide'}}" value="{{times}}" range="{{timesArray}}">
+      <picker @change="chooseTimes" class="{{alterableDay ? '' : 'hide'}}" value="{{times}}" range="{{timesArrayText}}">
         <button class="edit-record">
-          {{todayTimes}}
+          {{editButtonText}}
         </button>
       </picker>
       <view class="buttons">
@@ -110,13 +64,15 @@ export default class Index extends wepy.page {
     str: MONTHS[new Date().getMonth()],  // 月份字符串
     daysStyle: null,
     timesArray: null,
+    timesArrayText: null,
     records: null,
     manualSync: false
   };
 
   computed = {
-    todayTimes() {
+    editButtonText() {
       let times = this.getDayRecord(this.currentDay).t;
+      // console.log(times)
       if (!times) {
         if (this.currentYear === this.year && this.currentMonth === this.month &&
           this.currentDay === this.day) {
@@ -124,7 +80,7 @@ export default class Index extends wepy.page {
         }
         return `编辑${this.currentMonth}月${this.currentDay}日记录`;
       } else {
-        return this.timesArray[times];
+        return this.timesArrayText[times];
       }
     },
     alterableDay() {
@@ -145,7 +101,7 @@ export default class Index extends wepy.page {
       });
     },
     chooseDay(e) {
-      console.log(e)
+      console.log(e);
       this.currentDay = e.detail.day;
       this.drawChosenDayAndToday();
     },
@@ -297,6 +253,7 @@ export default class Index extends wepy.page {
     let record = {};
     let year = this.currentYear % 100 + '';
     let month = this.currentMonth > 9 ? '' + this.currentMonth : '0' + this.currentMonth;
+    day = typeof day === 'string' ? day : day + '';
     day = day.length > 1 ? day : '0' + day;
     _.forEach(this.records.items, item => {
       let dateToken = item.d;
@@ -328,6 +285,7 @@ export default class Index extends wepy.page {
       this.records = this.$parent.globalData.tmpRecords;
     }
     this.timesArray = await settingManager.get(settingManager.keys.timesArray);
+    this.timesArrayText = _.map(this.timesArray, 'text');
     this.manualSync = await settingManager.get(settingManager.keys.manualSync);
     this.refreshMonthStyle();
     this.$apply();

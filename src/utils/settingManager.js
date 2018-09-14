@@ -37,7 +37,8 @@ const defaultSetting = function(key) {
   case keys.color2:
     return '#8e6391';
   case keys.timesArray:
-    return ['0 😘', '1 😑', '2 ☹️', '3 😣', '4 😵', '>=5 😱'];
+    return [{ text: '0 😘', num: 0 }, { text: '1 😑', num: 1 }, { text: '2 ☹️', num: 2 },
+      { text: '3 😣', num: 3 }, { text: '4 😵', num: 4 }, { text: '>=5 😱', num: 5 }];
   }
 };
 
