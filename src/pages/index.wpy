@@ -318,9 +318,13 @@ export default class Index extends wepy.page {
   }
 
   async onShow() {
-
+    if (this.$parent.globalData.reloadData) {
+      this.$parent.globalData.reloadData = false;
+      this.records = this.$parent.globalData.tmpRecords;
+    }
     this.timesArray = await settingManager.get(settingManager.keys.timesArray);
     this.manualSync = await settingManager.get(settingManager.keys.manualSync);
+    this.refreshMonthStyle();
     this.$apply();
   }
 }
