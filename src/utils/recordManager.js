@@ -26,9 +26,8 @@ const getRecords = async function() {
   // 文件被删，等待重建
   if (!str) {
     return await saveLocal.getRecordParsed();
-  }
-  console.log(str);
-  let cloudRecords = JSON.parse(str);
+  };
+  let cloudRecords = typeof str === 'string' ? JSON.parse(str) : str;
   let localRecords = await saveLocal.getRecordParsed();
   if (!localRecords) {
     await showModalPromised({
@@ -91,7 +90,7 @@ const keepData = async function(records, keepCloud = true) {
   if (keepCloud) {
     await saveLocal.saveRecord(records);
   } else {
-    await dav.putStrAsync(JSON.stringify(records));
+    await dav.putStrAsync(records);
   }
   tips.hideLoading();
   return records;
@@ -104,7 +103,7 @@ const rebuildCloudBackup = async function() {
   records.timestamp = _.now();
   await Promise.all([
     saveLocal.saveRecord(records),
-    dav.putStrAsync(JSON.stringify(records))
+    dav.putStrAsync(records)
   ]);
 };
 

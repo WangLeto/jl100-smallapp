@@ -32,7 +32,11 @@ export default class extends wepy.app {
     }
   };
 
-  globalData = {};
+  globalData = {
+    // 是否在 index onShow 时更新数据
+    reloadData: false,
+    tmpRecords: null
+  };
 
   constructor() {
     super();
@@ -67,10 +71,6 @@ export default class extends wepy.app {
 
   async onLaunch() {
     await colorMaker.init();
-    for (let i = 0; i < 5; i++) {
-      let color = colorMaker.getColor(i);
-      console.log('%c Oh my heavens! ', 'background: ' + color + '; color: #fff');
-    }
   }
 }
 </script>

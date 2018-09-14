@@ -167,7 +167,7 @@ export default class Index extends wepy.page {
       let records = await recordManager.addRecord(this.currentYear, this.currentMonth, this.currentDay, e.detail.value);
       console.log(records);
       this.records = records;
-      dav.putStr(JSON.stringify(records));
+      dav.putStr(records);
     },
     async sync() {
       console.log(await recordManager.showModalPromised({
@@ -263,18 +263,20 @@ export default class Index extends wepy.page {
     // 遍历并绘制记录
     let year = this.currentYear % 100 + '';
     let month = this.currentMonth > 9 ? '' + this.currentMonth : '0' + this.currentMonth;
-    _.forEach(this.records.items, item => {
-      let dateToken = item.d;
-      let tokens = dateToken.split('-');
-      if (tokens[0] === year && tokens[1] === month) {
-        let day = parseInt(tokens[2]);
-        this.eraseDay(day, style);
-        style.push(this.generateDayStyle(day, {
-          color: '#fff',
-          back: colorMaker.getColor(item.t)
-        }));
-      }
-    });
+    if (this.records && this.records.items) {
+      _.forEach(this.records.items, item => {
+        let dateToken = item.d;
+        let tokens = dateToken.split('-');
+        if (tokens[0] === year && tokens[1] === month) {
+          let day = parseInt(tokens[2]);
+          this.eraseDay(day, style);
+          style.push(this.generateDayStyle(day, {
+            color: '#fff',
+            back: colorMaker.getColor(item.t)
+          }));
+        }
+      });
+    }
 
     // 重绘选择的日期
     this.eraseDay(this.currentDay, style);
@@ -316,6 +318,7 @@ export default class Index extends wepy.page {
   }
 
   async onShow() {
+
     this.timesArray = await settingManager.get(settingManager.keys.timesArray);
     this.manualSync = await settingManager.get(settingManager.keys.manualSync);
     this.$apply();

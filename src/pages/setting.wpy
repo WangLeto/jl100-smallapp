@@ -1,19 +1,5 @@
 <style lang="less">
-.page__bd {
-  /*margin-bottom: 0;*/
-}
-
-.weui-label {
-  width: 60px;
-}
-
-.switch {
-  margin-top: -30px;
-}
-
-.button-sp-area {
-  margin-top: 30px;
-}
+@import "../style/setting.less";
 </style>
 <template>
   <view class="page__hd">
@@ -84,6 +70,22 @@
     <view class="button-sp-area">
       <button class="weui-btn" plain="" type="default" @tap="submit">验证并保存</button>
     </view>-->
+  <view wx:if="{{showModal}}" class="modal-group">
+    <view class="mask" @tap="hideModal"></view>
+    <view class="modal-body">
+      <image class="close-modal-btn" src="../assets/close.png" @tap="hideModal"></image>
+      <view class="text">
+        如果有对本小程序的宝贵建议，请发送至邮箱 wleto3@163.com
+      </view>
+      <view class="copy-tip" @tap="copyEmail">复制邮箱</view>
+    </view>
+  </view>
+  <view class="weui-footer">
+    <view class="weui-footer__links">
+      <view class="weui-footer__link" @tap="showModal">联系开发者</view>
+    </view>
+    <view class="weui-footer__text">Copyright © 不良日历</view>
+  </view>
 </template>
 <script>
 import wepy from 'wepy';
@@ -97,7 +99,8 @@ export default class Demo extends wepy.page {
   data = {
     account: '',
     password: '',
-    manualSync: false
+    manualSync: false,
+    showModal: false
   };
   methods = {
     inputAccount(e) {
@@ -114,8 +117,12 @@ export default class Demo extends wepy.page {
         }
         tips.toastSuccess('配置成功！');
         await saveLocal.saveAccountPassword(this.account, this.password);
-        await dav.delTestFile();
-        recordManager.getRecords();
+        dav.delTestFile();
+        let records = await recordManager.getRecords();
+        console.log(records);
+        this.$parent.globalData.tmpRecords = records;
+        this.$parent.globalData.reloadData = true;
+        wx.navigateBack();
       } else {
         tips.toastErr('未完成输入');
       }
@@ -132,6 +139,23 @@ export default class Demo extends wepy.page {
       } else {
         settingManager.set(settingManager.keys.manualSync, this.manualSync);
       }
+    },
+    showModal() {
+      this.showModal = true;
+    },
+    hideModal() {
+      this.showModal = false;
+    },
+    copyEmail() {
+      let that = this;
+      wx.setClipboardData({
+        data: 'wleto1@163.com',
+        success: () => {
+          that.showModal = false;
+          that.$apply();
+          tips.toastSuccess('已复制');
+        }
+      });
     }
   };
 

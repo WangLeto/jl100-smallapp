@@ -2,7 +2,6 @@ import wepy from 'wepy';
 import base64 from 'base64-utf8';
 import configure from './configure';
 import saveLocal from './saveLocal';
-import zip from 'lz-string';
 
 const apiRoot = configure.apiRoot;
 const fileName = configure.fileName;
@@ -41,7 +40,6 @@ const request = async (params = {}, fail_fun = null, success_fun = null) => {
   return result;
 };
 
-// 上传下载前，均对字符串进行压缩处理
 const getStrAsync = async (authInfo = null) => {
   let r = await request({
     authInfo: authInfo
@@ -49,13 +47,12 @@ const getStrAsync = async (authInfo = null) => {
   if (r.statusCode === 404) {
     return '';
   }
-  let str = zip.decompress(r.data);
+  let str = r.data;
   return str;
 };
 
-const putStrAsync = async (str, autoInfo = null) => {
-  console.log(str);
-  str = zip.compress(str);
+const putStrAsync = async (obj, autoInfo = null) => {
+  let str = JSON.stringify(obj);
   return await request({
     method: 'PUT',
     data: str,
@@ -63,8 +60,8 @@ const putStrAsync = async (str, autoInfo = null) => {
   });
 };
 
-const putStr = (str) => {
-  str = zip.compress(str);
+const putStr = (obj) => {
+  let str = JSON.stringify(obj);
   request({
     method: 'PUT',
     data: str
