@@ -243,7 +243,19 @@ export default class Analyse extends wepy.page {
       console.error('getSystemInfoSync failed!');
     }
 
-    this.recordsItems = (await saveLocal.getRecordParsed()).items;
+    let records = await saveLocal.getRecordParsed();
+    if (!records) {
+      wx.showModal({
+        title: '暂无数据',
+        content: '请积累一定使用数据后进行分析',
+        showCancel: false,
+        success: () => {
+          wx.navigateBack();
+        }
+      });
+      return;
+    }
+    this.recordsItems = records.items;
     this.times = await settingManager.get(settingManager.keys.timesArray);
 
     let dateToken = _.sortBy(_.uniqBy(_.map(this.recordsItems, e => {
