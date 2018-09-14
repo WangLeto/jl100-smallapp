@@ -21,7 +21,9 @@ const colorMaker = {
         color2 = value;
         console.log('found color2 changes')
       }
-      this.rainbow.setSpectrum(color1, color2);
+      if (color1 || color2) {
+        this.rainbow.setSpectrum(color1, color2);
+      }
     });
     let color2 = await settingManager.get(settingManager.keys.color2);
     this.rainbow.setSpectrum(color1, color2);
