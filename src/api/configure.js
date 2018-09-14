@@ -8,7 +8,7 @@ const dbKeys = {
 };
 const colors = {
   currentChosen: {
-    color: '#fff',
+    color: '#000',
     back: '#fff40c'
   },
   today: {

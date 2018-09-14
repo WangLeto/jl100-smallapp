@@ -75,7 +75,7 @@
     <view class="modal-body">
       <image class="close-modal-btn" src="../assets/close.png" @tap="hideModal"></image>
       <view class="text">
-        如果有对本小程序的宝贵建议，请发送至邮箱 wleto3@163.com
+        如果有对本小程序的宝贵建议，欢迎发送至邮箱 wleto3@163.com
       </view>
       <view class="copy-tip" @tap="copyEmail">复制邮箱</view>
     </view>
