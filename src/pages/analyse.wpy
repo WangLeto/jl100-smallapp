@@ -26,13 +26,25 @@
       </button>
     </picker>
   </view>
-  <view class="weui-cells__title">频次统计图</view>
+  <view class="weui-cells__title">频次直方图</view>
   <canvas canvas-id="columnChart"></canvas>
-  <canvas canvas-id="lineChart"></canvas>
+  <view class="weui-cells__title">频数折线图</view>
+  <canvas canvas-id="lineChart" disable-scroll="true" @touchstart="touchHandler" @touchmove="moveHandler"
+          @touchend="touchEndHandler"></canvas>
+  <view class="weui-cells__title switch">启用滑动折线图</view>
+  <view class="weui-cells weui-cells_after-title">
+    <view class="weui-cell weui-cell_switch">
+      <view class="weui-cell__bd">启用滑动</view>
+      <view class="weui-cell__ft">
+        <switch checked="{{useSlide}}" @change="changeUseSlide"/>
+      </view>
+    </view>
+  </view>
 </template>
 <script>
 import wepy from 'wepy';
 import _ from 'lodash';
+import tips from '../utils/tips';
 import wxCharts from '../utils/wxcharts-min';
 import saveLocal from '../api/saveLocal';
 import settingManager from '../utils/settingManager';
@@ -53,14 +65,29 @@ export default class Analyse extends wepy.page {
     chartMonthPickerStart: null,
     chartMonthPickerEnd: null,
     chartYearPickerChoice: 0,
+    // '2018-05'
     chartMonthPickerChoice: '',
     // 复合设置
-    times: null
+    times: null,
+    windowWidth: 350,
+    useSlide: false
   };
 
-  computed = {};
-
   methods = {
+    touchHandler: function(e) {
+      lineChart.scrollStart(e);
+    },
+    moveHandler: function(e) {
+      lineChart.scroll(e);
+    },
+    touchEndHandler: function(e) {
+      lineChart.scrollEnd(e);
+      lineChart.showToolTip(e, {
+        format: function(item, category) {
+          return category + ' 次数' + ':' + item.data;
+        }
+      });
+    },
     radioChange(e) {
       this.radio = parseInt(e.detail.value);
       let dateToken = _.sortBy(_.uniqBy(_.map(this.recordsItems, e => {
@@ -72,13 +99,12 @@ export default class Analyse extends wepy.page {
           return '20' + e;
         });
       } else {
-        this.chartMonthPickerEnd = '20' + dateToken[0] + '-01';
-        this.chartMonthPickerStart = '20' + dateToken[dateToken.length - 1] + '-01';
         if (this.chartMonthPickerChoice === '') {
           this.chartMonthPickerChoice = '20' + dateToken[0];
         }
       }
       this.refreshColumn();
+      this.refreshLine();
     },
     chooseAnalysing1(e) {
       let choice = e.detail.value;
@@ -88,14 +114,28 @@ export default class Analyse extends wepy.page {
         this.chartMonthPickerChoice = choice;
       }
       this.refreshColumn();
+      this.refreshLine();
+    },
+    changeUseSlide(e) {
+      this.useSlide = e.detail.value;
+      this.refreshLine(true);
+      tips.toastSuccess('左右滑动查看');
     }
   };
 
   refreshColumn() {
+    let records = this.getRecordsForRefresh();
+    let newData = this.generateColumnSeries(this.calcFrequency(records));
+    columnChart.updateData({
+      series: newData
+    });
+  }
+
+  getRecordsForRefresh() {
     let records = this.recordsItems;
     if (this.radio === this.CHART_SHOW_YEAR) {
-      let year = this.range[this.chartYearPickerChoice].slice(2);
       // type: string
+      let year = this.range[this.chartYearPickerChoice].slice(2);
       records = _.filter(records, e => {
         return e.d.slice(0, 2) === year;
       });
@@ -105,10 +145,48 @@ export default class Analyse extends wepy.page {
         return e.d.slice(0, 5) === yearMonth;
       });
     }
-    let newData = this.generateColumnSeries(this.calcFrequency(records));
-    columnChart.updateData({
-      series: newData
-    });
+    return records;
+  }
+
+  refreshLine(needRenew = false) {
+    let records = this.getRecordsForRefresh();
+    let range = null;
+    let func = null;
+    if (this.radio === this.CHART_SHOW_ALL) {
+      let yearStart = parseInt(this.chartMonthPickerStart.slice(0, 4));
+      let yearEnd = parseInt(this.chartMonthPickerEnd.slice(0, 4));
+      range = Array.from(new Array(yearEnd - yearStart + 1), (e, idx) => yearStart + idx);
+      func = (e, r) => {
+        return e.slice(0, 2) === (r % 100) + '';
+      };
+    } else if (this.radio === this.CHART_SHOW_YEAR) {
+      range = Array.from(new Array(12), (e, idx) => idx + 1);
+      func = (e, r) => {
+        return parseInt(e.split('-')[1]) === r;
+      };
+    } else if (this.radio === this.CHART_SHOW_MONTH) {
+      let dateToken = this.chartMonthPickerChoice.split('-');
+      let days = new Date(parseInt(dateToken[0]), parseInt(dateToken[1]), 0).getDate();
+      range = Array.from(new Array(days), (e, idx) => idx + 1);
+      func = (e, r) => {
+        return parseInt(e.split('-')[2]) === r;
+      };
+    }
+    let series = this.generateLineSeries(this.calcTimes(records, range, func));
+    let measure = this.radio === this.CHART_SHOW_MONTH ? '日' : this.radio === this.CHART_SHOW_YEAR ? '月' : '年';
+    range = _.map(range, e => e + (measure));
+    let newData = {
+      series: series,
+      categories: range
+    };
+    if (this.radio === this.CHART_SHOW_MONTH) {
+      newData.enableScroll = true;
+    }
+    if (needRenew) {
+      lineChart = this.newLineChart(range, series, this.useSlide);
+    } else {
+      lineChart.updateData(newData);
+    }
   }
 
   calcFrequency(filteredRecordsItems) {
@@ -123,6 +201,22 @@ export default class Analyse extends wepy.page {
     return frequency;
   }
 
+
+  calcTimes(records, range, match_func) {
+    let timesArray = _.map(this.times, 'num');
+    let times = Array.from(new Array(range.length), () => 0);
+    _.forEach(records, e => {
+      _.forEach(range, (r, idx) => {
+        // debugger;
+        if (match_func(e.d, r)) {
+          console.log(timesArray[parseInt(e.t)])
+          times[idx] += timesArray[parseInt(e.t)];
+        }
+      });
+    });
+    return times;
+  }
+
   generateColumnSeries(frequency) {
     return [{
       name: '频次',
@@ -131,12 +225,37 @@ export default class Analyse extends wepy.page {
     }];
   }
 
+  generateLineSeries(times) {
+    return [{
+      name: '日期',
+      data: times,
+      format: function(val) {
+        return val + '次';
+      }
+    }];
+  }
+
   async onLoad() {
+    try {
+      var res = wx.getSystemInfoSync();
+      this.windowWidth = res.windowWidth * .95;
+    } catch (e) {
+      console.error('getSystemInfoSync failed!');
+    }
+
     this.recordsItems = (await saveLocal.getRecordParsed()).items;
     this.times = await settingManager.get(settingManager.keys.timesArray);
+
+    let dateToken = _.sortBy(_.uniqBy(_.map(this.recordsItems, e => {
+      return e.d.slice(0, 5);
+    }))).reverse();
+    this.chartMonthPickerEnd = '20' + dateToken[0] + '-01';
+    this.chartMonthPickerStart = '20' + dateToken[dateToken.length - 1] + '-01';
+
     let timesShow = _.map(this.times, 'text');
-    let frequency = await this.calcFrequency(this.recordsItems);
+    let frequency = this.calcFrequency(this.recordsItems);
     let series = this.generateColumnSeries(frequency);
+    let windowWidth = this.windowWidth;
     columnChart = new wxCharts({
       animation: true,
       canvasId: 'columnChart',
@@ -149,34 +268,40 @@ export default class Analyse extends wepy.page {
           return val + '天';
         }
       },
-      width: 350,
+      width: windowWidth,
       height: 250,
       background: '#f8f8f8'
     });
-    lineChart = new wxCharts({
+
+    let yearStart = parseInt(this.chartMonthPickerStart.slice(0, 4));
+    let yearEnd = parseInt(this.chartMonthPickerEnd.slice(0, 4));
+    let range = Array.from(new Array(yearEnd - yearStart + 1), (e, idx) => yearStart + idx);
+    let times = this.calcTimes(this.recordsItems, range, (e, r) => {
+      return e.slice(0, 2) === (r % 100) + '';
+    });
+    let data = this.generateLineSeries(times);
+    range = _.map(range, e => e + '年');
+    lineChart = this.newLineChart(range, data);
+  }
+
+  newLineChart(range, data, useSlide = false) {
+    console.log('启用' + useSlide);
+    let windowWidth = this.windowWidth;
+    return new wxCharts({
       canvasId: 'lineChart',
       type: 'line',
-      categories: ['2012', '2013', '2014', '2015', '2016', '2017'],
-      series: [{
-        name: '成交量1',
-        data: [0.15, 0.2, 0.45, 0.37, 0.4, 0.8],
-        format: function(val) {
-          return val.toFixed(2) + '万';
-        }
-      }],
+      categories: range,
+      series: data,
       yAxis: {
-        title: '成交金额 (万元)',
-        format: function(val) {
-          return val.toFixed(2);
-        },
+        title: '次数',
         min: 0
       },
-      width: 350,
+      enableScroll: useSlide ? true : false,
+      width: windowWidth,
       height: 250,
       background: '#f8f8f8'
     });
   }
-
 
 }
 </script>
