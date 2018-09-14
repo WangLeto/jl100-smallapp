@@ -87,11 +87,11 @@ const showModalPromised = function(obj) {
 
 const keepData = async function(records, keepCloud = true) {
   tips.loading('正在处理');
-  if (keepCloud) {
-    await saveLocal.saveRecord(records);
-  } else {
+  if (!keepCloud) {
+    records.timestamp = _.now();
     await dav.putStrAsync(records);
   }
+  await saveLocal.saveRecord(records);
   tips.hideLoading();
   return records;
 };
