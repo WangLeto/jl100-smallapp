@@ -101,7 +101,6 @@ export default class Index extends wepy.page {
       });
     },
     chooseDay(e) {
-      console.log(e);
       this.currentDay = e.detail.day;
       this.drawChosenDayAndToday();
     },
@@ -226,9 +225,7 @@ export default class Index extends wepy.page {
         let dateToken = item.d;
         let tokens = dateToken.split('-');
         if (tokens[0] === year && tokens[1] === month) {
-          console.log(dateToken);
           let day = parseInt(tokens[2]);
-          console.log(day);
           this.eraseDay(day, style);
           style.push(this.generateDayStyle(day, {
             color: '#fff',

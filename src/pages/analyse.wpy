@@ -209,7 +209,6 @@ export default class Analyse extends wepy.page {
       _.forEach(range, (r, idx) => {
         // debugger;
         if (match_func(e.d, r)) {
-          console.log(timesArray[parseInt(e.t)])
           times[idx] += timesArray[parseInt(e.t)];
         }
       });
