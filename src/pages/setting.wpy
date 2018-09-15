@@ -40,6 +40,7 @@
       </view>
     </view>
   </view>
+  <view class="weui-media-box__info" style="padding-left: 1rem">开启后以本地数据为准，可能导致云端数据被覆盖</view>
   <view class="button-sp-area">
     <button @tap="submit">验证账号</button>
   </view>

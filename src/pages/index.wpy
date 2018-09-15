@@ -41,6 +41,7 @@ import wepy from 'wepy';
 import dav from '../api/davApi';
 import { accountExists } from '../api/saveLocal';
 import _ from 'lodash';
+import tips from '../utils/tips';
 import { colors, chosenDayToken } from '../api/configure';
 import recordManager from '../utils/recordManager';
 import settingManager from '../utils/settingManager';
@@ -124,13 +125,13 @@ export default class Index extends wepy.page {
       console.log(records);
       this.records = records;
       this.$apply();
-      dav.putStr(records);
+      if (!this.manualSync) {
+        dav.putStr(records);
+      }
     },
     async sync() {
-      console.log(await recordManager.showModalPromised({
-        title: '开发中',
-        content: '手动同步功能尚在开发，敬请谅解'
-      }));
+      await dav.putStrAsync(this.records);
+      tips.toastSuccess('同步成功');
     },
     goAnalyse() {
       wx.navigateTo({

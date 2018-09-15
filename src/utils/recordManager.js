@@ -2,6 +2,7 @@ import saveLocal from '../api/saveLocal';
 import _ from 'lodash';
 import dav from '../api/davApi';
 import tips from './tips';
+import settingManager from '../utils/settingManager';
 
 // 数据格式：{timestamp: 155xxx, items: [{d: '18-09-02', t: 0, w: 'bala'}, {}]}
 
@@ -22,6 +23,11 @@ const addRecord = async function(year, month, day, times, text = '') {
 };
 
 const getRecords = async function() {
+  let manualSync = await settingManager.get(settingManager.keys.manualSync);
+  if (manualSync) {
+    return await saveLocal.getRecordParsed();
+  }
+
   let str = await dav.getStrAsync();
   // 文件被删，等待重建
   if (!str) {
@@ -120,6 +126,5 @@ const initRecordsInCase = (records) => {
 module.exports = {
   addRecord,
   getRecords,
-  rebuildCloudBackup,
-  showModalPromised
+  rebuildCloudBackup
 };
