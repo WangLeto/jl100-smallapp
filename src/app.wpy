@@ -21,7 +21,7 @@ export default class extends wepy.app {
     window: {
       backgroundTextStyle: 'light',
       navigationBarBackgroundColor: '#aad4f5',
-      navigationBarTitleText: 'JL日历',
+      navigationBarTitleText: '不良日历',
       navigationBarTextStyle: 'white'
     },
     plugins: {

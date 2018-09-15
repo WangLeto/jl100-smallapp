@@ -31,16 +31,16 @@
       </view>
     </view>
   </view>
-  <view class="weui-cells__title switch">备份策略</view>
+  <view class="weui-cells__title switch">同步策略</view>
   <view class="weui-cells weui-cells_after-title">
     <view class="weui-cell weui-cell_switch">
-      <view class="weui-cell__bd">手动同步</view>
+      <view class="weui-cell__bd">手动上传</view>
       <view class="weui-cell__ft">
         <switch checked="{{manualSync}}" @change="changeSwitch"/>
       </view>
     </view>
   </view>
-  <view class="weui-media-box__info" style="padding-left: 1rem">开启后以本地数据为准，可能导致云端数据被覆盖</view>
+  <view class="weui-media-box__info">开启后，手动以本地数据上传到云端，不适用于多端同步</view>
   <view class="button-sp-area">
     <button @tap="submit">验证账号</button>
   </view>

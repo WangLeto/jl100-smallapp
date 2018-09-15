@@ -131,7 +131,7 @@ export default class Index extends wepy.page {
     },
     async sync() {
       await dav.putStrAsync(this.records);
-      tips.toastSuccess('同步成功');
+      tips.toastSuccess('上传成功');
     },
     goAnalyse() {
       wx.navigateTo({

@@ -29,9 +29,10 @@
   <view class="weui-cells__title">频次直方图</view>
   <canvas canvas-id="columnChart"></canvas>
   <view class="weui-cells__title">频数折线图</view>
-  <canvas canvas-id="lineChart" disable-scroll="true" @touchstart="touchHandler" @touchmove="moveHandler"
+  <canvas canvas-id="lineChart" disable-scroll="{{useSlide ? true : false}}" @touchstart="touchHandler"
+          @touchmove="moveHandler"
           @touchend="touchEndHandler"></canvas>
-  <view class="weui-cells__title switch">启用滑动折线图</view>
+  <view class="weui-cells__title switch">滑动查看折线图</view>
   <view class="weui-cells weui-cells_after-title">
     <view class="weui-cell weui-cell_switch">
       <view class="weui-cell__bd">启用滑动</view>
@@ -40,6 +41,7 @@
       </view>
     </view>
   </view>
+  <view class="weui-media-box__info">开启后，无法在折线图区域上下拖动页面</view>
 </template>
 <script>
 import wepy from 'wepy';
@@ -119,7 +121,11 @@ export default class Analyse extends wepy.page {
     changeUseSlide(e) {
       this.useSlide = e.detail.value;
       this.refreshLine(true);
-      tips.toastSuccess('左右滑动查看');
+      if (this.useSlide) {
+        tips.toastSuccess('左右滑动查看');
+      } else {
+        tips.toastSuccess('关闭滑动模式');
+      }
     }
   };
 
