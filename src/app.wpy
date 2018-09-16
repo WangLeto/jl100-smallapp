@@ -17,6 +17,7 @@ export default class extends wepy.app {
       'pages/analyse',
       'pages/color',
       'pages/setting',
+      'pages/times',
       'pages/tutorial'
     ],
     window: {

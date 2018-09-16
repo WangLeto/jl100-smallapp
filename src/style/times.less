@@ -1,0 +1,75 @@
+.table {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+@rowHeight: 40px;
+@border: solid .5px #ccc;
+.row {
+  display: flex;
+  height: @rowHeight;
+  padding: 5px;
+  border: @border;
+  border-top: none;
+}
+
+.header {
+  border-top: @border;
+}
+
+.del-view, .add-view {
+  width: 20%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.op-btn {
+  width: 80%;
+  height: 80%;
+  line-height: @rowHeight * .64;
+}
+
+.text {
+  display: inline;
+  width: 40%;
+  line-height: @rowHeight * .8;
+  height: @rowHeight * .8;
+}
+
+.row > view, .row > .num, .row > .text-input {
+  line-height: @rowHeight * .8;
+  height: @rowHeight * .8;
+  display: flex;
+  align-self: center;
+  justify-content: center;
+}
+
+.row > .text-input {
+  width: 40%;
+  justify-content: flex-start;
+  padding-left: .5rem;
+  box-sizing: border-box;
+  border-bottom: solid 1px #cccccc;
+}
+
+.button-sp-area {
+  margin-top: 40px;
+}
+
+.num {
+  width: 20%;
+  font-weight: bold;
+}
+
+input.num {
+  border: none;
+  display: flex;
+  justify-content: center;
+  padding-left: 0;
+}
+
+.header > view {
+  font-weight: normal;
+}

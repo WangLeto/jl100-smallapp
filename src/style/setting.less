@@ -69,9 +69,16 @@
 }
 
 @slide: 50px;
+@marginWidth: 10px;
 .showing-color {
   width: @slide;
-  height: @slide;
+  height: @slide - 2 * @marginWidth;
+  margin: @marginWidth;
+  border-radius: 5px;
+}
+
+.weui-cell {
+  justify-content: space-between;
 }
 
 .shrink-bottom {

@@ -1,0 +1,80 @@
+<style lang="less">
+@import "../style/times";
+</style>
+<template>
+  <view class="page__hd">
+    <view class="page__title">频次设置</view>
+    <view class="page__desc">自定义频次</view>
+  </view>
+  <view class="page__bd">
+    <view class="weui-cells__title">数量分级设置</view>
+    <view class="table">
+      <view class="header row">
+        <view class="num">数量</view>
+        <view class="text">文字</view>
+        <view class="del-view">删除</view>
+        <view class="add-view">添加</view>
+      </view>
+      <view class="row">
+        <view class="num" style="color: #666;">0</view>
+        <input type="text" class="text-input" value="{{times[0].text}}"/>
+        <view class="del-view">
+          <button class="op-btn" style="box-shadow: none" disabled @tap="del">-</button>
+        </view>
+        <view class="add-view">
+          <button class="op-btn" @tap="add({{index + 1}})">+</button>
+        </view>
+      </view>
+      <view class="row" wx:for="{{timesSlice}}">
+        <input type="num" class="num" value="{{item.num}}"/>
+        <input type="text" class="text-input" value="{{item.text}}"/>
+        <view class="del-view">
+          <button class="op-btn" @tap="del({{index + 1}})">-</button>
+        </view>
+        <view class="add-view">
+          <button class="op-btn" @tap="add({{index + 1}})">+</button>
+        </view>
+      </view>
+    </view>
+    <view class="button-sp-area">
+      <button @tap="submit">保存</button>
+    </view>
+  </view>
+</template>
+<script>
+import wepy from 'wepy';
+import _ from 'lodash';
+
+export default class Times extends wepy.page {
+  data = {
+    times: [{
+      num: 0,
+      text: '00'
+    }, {
+      num: 1,
+      text: '11'
+    }, {
+      num: 2,
+      text: '22'
+    }]
+  };
+  computed = {
+    timesSlice() {
+      return this.times.slice(1);
+    }
+  };
+  methods = {
+    del(e) {
+      this.times.splice(e, 1);
+    },
+    add(e) {
+      let max = _.sortBy(this.times, 'num').reverse()[0].num;
+      console.log(max);
+      this.times.splice(e + 1, 0, {
+        num: max + 1,
+        text: max + 1 + ''
+      });
+    }
+  };
+}
+</script>
