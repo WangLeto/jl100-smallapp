@@ -45,7 +45,7 @@ import tips from '../utils/tips';
 import { colors, chosenDayToken } from '../api/configure';
 import recordManager from '../utils/recordManager';
 import settingManager from '../utils/settingManager';
-import { colorMaker } from '../utils/tools';
+import { colorMaker, colorTool } from '../utils/tools';
 
 const MONTHS = ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May.', 'June.', 'July.', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'];
 export default class Index extends wepy.page {
@@ -230,7 +230,6 @@ export default class Index extends wepy.page {
           let day = parseInt(tokens[2]);
           this.eraseDay(day, style);
           style.push(this.generateDayStyle(day, {
-            color: '#fff',
             back: colorMaker.getColor(item.t, this.binaryShow)
           }));
         }
@@ -266,10 +265,14 @@ export default class Index extends wepy.page {
   }
 
   generateDayStyle(day, colors, chosenHighlight = false) {
+    let color = colors.color;
+    if (!color) {
+      color = colorTool.tooBright(colorTool.hexToRgb(colors.back)) ? '#000' : '#fff';
+    }
     let obj = {
       month: 'current',
       day: day,
-      color: colors.color,
+      color: color,
       background: colors.back
     };
     if (chosenHighlight) {

@@ -44,7 +44,7 @@
   <view class="button-sp-area">
     <button @tap="submit">验证账号</button>
   </view>
-  <view class="page__bd">
+  <view class="page__bd shrink-bottom">
     <view class="weui-cells__title switch">日历视图</view>
     <view class="weui-cells weui-cells_after-title">
       <view class="weui-cell weui-cell_switch">
@@ -75,6 +75,23 @@
   <!--<button>添加</button>-->
   <!--</view>-->
 
+  <view class="page__bd">
+    <view class="weui-cells__title">视图颜色设置</view>
+    <view class="weui-cells weui-cells_after-title">
+      <view class="weui-cell weui-cell_input" @tap="setColor(0)">
+        <view class="weui-cell__hd">
+          <view class="weui-label">0次</view>
+        </view>
+        <view class="showing-color" style="background: {{zeroColor}};"></view>
+      </view>
+      <view class="weui-cell weui-cell_input weui-cell_vcode" @tap="setColor(1)">
+        <view class="weui-cell__hd">
+          <view class="weui-label">高频</view>
+        </view>
+        <view class="showing-color" style="background: {{highColor}};"></view>
+      </view>
+    </view>
+  </view>
   <view wx:if="{{showModal}}" class="modal-group">
     <view class="mask" @tap="hideModal"></view>
     <view class="modal-body">
@@ -99,6 +116,7 @@ import tips from '../utils/tips';
 import dav from '../api/davApi';
 import settingManager from '../utils/settingManager';
 import recordManager from '../utils/recordManager';
+import { colorMaker } from '../utils/tools';
 
 export default class Demo extends wepy.page {
   data = {
@@ -121,6 +139,12 @@ export default class Demo extends wepy.page {
   computed = {
     timesSlice() {
       return this.times.slice(1);
+    },
+    zeroColor() {
+      return colorMaker.color1();
+    },
+    highColor() {
+      return colorMaker.color2();
     }
   };
   methods = {
@@ -181,6 +205,22 @@ export default class Demo extends wepy.page {
           tips.toastSuccess('已复制');
         }
       });
+    },
+    setColor(c) {
+      let color1 = colorMaker.color1();
+      let color2 = colorMaker.color2();
+      switch (c) {
+      case '0':
+        wx.navigateTo({
+          url: 'color?hex=' + color1 + '&num=1'
+        });
+        break;
+      case '1':
+        wx.navigateTo({
+          url: 'color?hex=' + color2 + '&num=2'
+        });
+        break;
+      }
     }
   };
 

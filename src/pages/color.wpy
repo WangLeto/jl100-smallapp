@@ -1,0 +1,88 @@
+<style lang="less">
+@import "../style/color";
+</style>
+<template>
+  <view class="page">
+    <view class="page__hd">
+      <view class="page__title">调色</view>
+      <view class="page__desc">拖动色块调色</view>
+    </view>
+    <view class="weui-cells__title">红</view>
+    <view class="page__bd page__bd_spacing">
+      <slider show-value value="{{r}}" max="255" @changing="changing(r)" @change="changing(r)"/>
+    </view>
+    <view class="weui-cells__title">绿</view>
+    <view class="page__bd page__bd_spacing">
+      <slider show-value value="{{g}}" max="255" @changing="changing(g)" @change="changing(g)"/>
+    </view>
+    <view class="weui-cells__title">蓝</view>
+    <view class="page__bd page__bd_spacing">
+      <slider show-value value="{{b}}" max="255" @changing="changing(b)" @change="changing(b)"/>
+    </view>
+    <view class="showing" style="background: {{colorHex}}; color: {{fontColor}}">20</view>
+  </view>
+</template>
+<script>
+import wepy from 'wepy';
+import settingManager from '../utils/settingManager';
+import { colorTool } from '../utils/tools';
+
+export default class Color extends wepy.page {
+  data = {
+    colorNum: 0,
+    r: 0,
+    g: 0,
+    b: 0,
+    fontColor: ''
+  };
+
+  computed = {
+    colorHex() {
+      return colorTool.rgbToHex(this.r, this.g, this.b);
+    }
+  };
+
+
+  onLoad(params) {
+    let rgb = colorTool.hexToRgb(params.hex);
+    this.r = rgb.r;
+    this.g = rgb.g;
+    this.b = rgb.b;
+
+    this.colorNum = parseInt(params.num);
+    this.adjustFontColor();
+  }
+
+  methods = {
+    changing(c, e) {
+      let value = e.detail.value;
+      switch (c) {
+      case 'r':
+        this.r = value;
+        break;
+      case 'g':
+        this.g = value;
+        break;
+      case 'b':
+        this.b = value;
+        break;
+      }
+      this.adjustFontColor();
+    }
+  };
+
+  adjustFontColor() {
+    if (colorTool.tooBright(this.r, this.g, this.b)) {
+      this.fontColor = '#000';
+    } else {
+      this.fontColor = '#fff';
+    }
+  }
+
+  onUnload() {
+    let color = colorTool.rgbToHex(this.r, this.g, this.b);
+    let key = 'color' + this.colorNum;
+    settingManager.set(settingManager.keys[key], color);
+  }
+}
+</script>
