@@ -197,7 +197,6 @@ export default class Index extends wepy.page {
     let record = this.getDayRecord(removed.day);
     if (record && record.t) {
       this.daysStyle.push(this.generateDayStyle(removed.day, {
-        color: '#fff',
         back: colorMaker.getColor(record.t, this.binaryShow)
       }));
     } else {

@@ -31,7 +31,7 @@ const colorMaker = {
   getColor: function(index, binaryShow) {
     index = parseInt(index);
     if (binaryShow) {
-      return '#' + (index === 0 ? this.color1() : this.color2());
+      return index === 0 ? this.color1() : this.color2();
     }
     return '#' + this.rainbow.colorAt(index / (this.colorsNum - 1) * 100);
   },
