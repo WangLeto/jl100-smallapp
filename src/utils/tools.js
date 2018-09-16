@@ -16,10 +16,10 @@ const colorMaker = {
       let color1, color2;
       if (key === settingManager.keys.color1) {
         color1 = value;
-        console.log('found color1 changes')
+        console.log('found color1 changes');
       } else if (key === settingManager.keys.color2) {
         color2 = value;
-        console.log('found color2 changes')
+        console.log('found color2 changes');
       }
       if (color1 || color2) {
         this.rainbow.setSpectrum(color1, color2);
@@ -29,7 +29,11 @@ const colorMaker = {
     this.rainbow.setSpectrum(color1, color2);
     this.colorsNum = (await settingManager.get(settingManager.keys.timesArray)).length;
   },
-  getColor: function(index) {
+  getColor: function(index, binaryShow) {
+    index = parseInt(index);
+    if (binaryShow) {
+      return '#' + (index === 0 ? this.rainbow.colorAt(0) : this.rainbow.colorAt(100));
+    }
     return '#' + this.rainbow.colorAt(index / (this.colorsNum - 1) * 100);
   }
 };

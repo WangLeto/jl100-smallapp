@@ -36,7 +36,7 @@
     <view class="weui-cell weui-cell_switch">
       <view class="weui-cell__bd">手动上传</view>
       <view class="weui-cell__ft">
-        <switch checked="{{manualSync}}" @change="changeSwitch"/>
+        <switch checked="{{manualSync}}" @change="changeSyncSwitch"/>
       </view>
     </view>
   </view>
@@ -44,33 +44,37 @@
   <view class="button-sp-area">
     <button @tap="submit">验证账号</button>
   </view>
-  <!--
-    <view class="weui-cells__title">日历颜色标记设置</view>
+  <view class="page__bd">
+    <view class="weui-cells__title switch">日历视图</view>
     <view class="weui-cells weui-cells_after-title">
-      <view class="weui-cell weui-cell_input">
-        <view class="weui-cell__hd">
-          <view class="weui-label">账号</view>
+      <view class="weui-cell weui-cell_switch">
+        <view class="weui-cell__bd">二元显示</view>
+        <view class="weui-cell__ft">
+          <switch checked="{{binaryShow}}" @change="changeBinarySwitch"/>
         </view>
-        <view class="weui-cell__bd">
-          <input class="weui-input" type="text" placeholder="账号" @input="inputAccount"/>
-        </view>
-      </view>
-      <view class="weui-cell weui-cell_input weui-cell_vcode">
-        <view class="weui-cell__hd">
-          <view class="weui-label">密码</view>
-        </view>
-        <view class="weui-cell__bd">
-          <input class="weui-input" type="password" placeholder="应用密码" @input="inputPassword"/>
-        </view>
-      </view>
-      <view class="weui-cell weui-cell_access weui-cell_link">
-        <view class="weui-cell__bd" @tap="showTutorial">查看教程</view>
-        <view class="weui-cell__ft weui-cell__ft_in-access"></view>
       </view>
     </view>
-    <view class="button-sp-area">
-      <button class="weui-btn" plain="" type="default" @tap="submit">验证并保存</button>
-    </view>-->
+    <view class="weui-media-box__info">在首页显示为0/有两种颜色，不细分次数</view>
+  </view>
+  <!--<view class="page__bd">-->
+  <!--<view class="weui-cells__title">数量分级设置</view>-->
+  <!--<view class="table">-->
+  <!--<view class="header">-->
+  <!--<view class="num">数量</view>-->
+  <!--<view class="text">文字</view>-->
+  <!--<view class="del">删除</view>-->
+  <!--</view>-->
+  <!--<view class="num">0</view>-->
+  <!--<input type="text" value="{{times[0].text}}"/>-->
+  <!--<block wx:for="{{timesSlice}}">-->
+  <!--<view class="num">{{item.num}}</view>-->
+  <!--<input type="text" class="text" value="{{item.text}}"/>-->
+  <!--<button class="del">-</button>-->
+  <!--</block>-->
+  <!--</view>-->
+  <!--<button>添加</button>-->
+  <!--</view>-->
+
   <view wx:if="{{showModal}}" class="modal-group">
     <view class="mask" @tap="hideModal"></view>
     <view class="modal-body">
@@ -101,7 +105,23 @@ export default class Demo extends wepy.page {
     account: '',
     password: '',
     manualSync: false,
-    showModal: false
+    showModal: false,
+    binaryShow: false,
+    times: [{
+      num: 0,
+      text: '00'
+    }, {
+      num: 1,
+      text: '11'
+    }, {
+      num: 2,
+      text: '22'
+    }]
+  };
+  computed = {
+    timesSlice() {
+      return this.times.slice(1);
+    }
   };
   methods = {
     inputAccount(e) {
@@ -133,13 +153,17 @@ export default class Demo extends wepy.page {
         url: 'tutorial'
       });
     },
-    changeSwitch() {
+    changeSyncSwitch() {
       this.manualSync = !this.manualSync;
       if (this.manualSync) {
         this.verifyAccount(settingManager.set, [settingManager.keys.manualSync, this.manualSync]);
       } else {
         settingManager.set(settingManager.keys.manualSync, this.manualSync);
       }
+    },
+    async changeBinarySwitch() {
+      this.binaryShow = !this.binaryShow;
+      await settingManager.set(settingManager.keys.binaryShow, this.binaryShow);
     },
     showModal() {
       this.showModal = true;
@@ -173,7 +197,7 @@ export default class Demo extends wepy.page {
 
   async onLoad() {
     this.manualSync = await settingManager.get(settingManager.keys.manualSync);
-    console.log(this.manualSync);
+    this.binaryShow = await settingManager.get(settingManager.keys.binaryShow);
     let account = await saveLocal.getAccount();
     let password = await saveLocal.getPassword();
     if (account && password) {

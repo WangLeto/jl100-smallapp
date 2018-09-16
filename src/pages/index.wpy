@@ -67,7 +67,8 @@ export default class Index extends wepy.page {
     timesArray: null,
     timesArrayText: null,
     records: null,
-    manualSync: false
+    manualSync: false,
+    binaryShow: false
   };
 
   computed = {
@@ -197,7 +198,7 @@ export default class Index extends wepy.page {
     if (record && record.t) {
       this.daysStyle.push(this.generateDayStyle(removed.day, {
         color: '#fff',
-        back: colorMaker.getColor(record.t)
+        back: colorMaker.getColor(record.t, this.binaryShow)
       }));
     } else {
       let color = date.getDay() === 0 ? colors.sunday : colors.normalDay;
@@ -230,7 +231,7 @@ export default class Index extends wepy.page {
           this.eraseDay(day, style);
           style.push(this.generateDayStyle(day, {
             color: '#fff',
-            back: colorMaker.getColor(item.t)
+            back: colorMaker.getColor(item.t, this.binaryShow)
           }));
         }
       });
@@ -282,9 +283,15 @@ export default class Index extends wepy.page {
       this.$parent.globalData.reloadData = false;
       this.records = this.$parent.globalData.tmpRecords;
     }
+
     this.timesArray = await settingManager.get(settingManager.keys.timesArray);
     this.timesArrayText = _.map(this.timesArray, 'text');
     this.manualSync = await settingManager.get(settingManager.keys.manualSync);
+
+    let binaryShow = await settingManager.get(settingManager.keys.binaryShow);
+    if (binaryShow !== this.binaryShow) {
+      this.binaryShow = binaryShow;
+    }
     this.refreshMonthStyle();
     this.$apply();
   }

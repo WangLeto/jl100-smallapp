@@ -7,7 +7,7 @@
 }
 
 .button-sp-area {
-  margin-top: 30px;
+  margin: 30px auto 60px;
 }
 
 .weui-footer {
@@ -15,7 +15,7 @@
 }
 
 .modal-group {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -30,11 +30,11 @@
     height: 100%;
   }
   .modal-body, .close-modal-btn {
-    position: absolute;
     right: 0;
     top: 0;
   }
   .modal-body {
+    position: fixed;
     background: #fff;
     width: 500rpx;
     height: 300rpx;
@@ -50,6 +50,7 @@
     align-items: center;
   }
   .close-modal-btn {
+    position: absolute;
     width: 50rpx;
     height: 50rpx;
   }

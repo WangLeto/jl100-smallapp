@@ -30,7 +30,8 @@ const settingKeys = {
   manualSync: 'manualSync',
   color1: 'color1',
   color2: 'color2',
-  timesArray: 'timesArray'
+  timesArray: 'timesArray',
+  binaryShow: 'binaryShow'
 };
 
 module.exports = {
