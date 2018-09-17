@@ -294,6 +294,7 @@ export default class Index extends wepy.page {
       this.binaryShow = binaryShow;
     }
     this.refreshMonthStyle();
+    this.drawChosenDayAndToday();
     this.$apply();
   }
 }
