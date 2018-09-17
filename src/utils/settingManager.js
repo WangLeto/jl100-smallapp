@@ -1,11 +1,11 @@
 import { settingKeys as keys } from '../api/configure';
 
 let callback = null;
-const get = async function(key, _callback) {
+const get = function(key, _callback) {
   if (_callback) {
     callback = _callback;
   }
-  let str = await wx.getStorageSync(keys.mainKey);
+  let str = wx.getStorageSync(keys.mainKey);
   if (!str) {
     return defaultSetting(key);
   }
@@ -17,6 +17,7 @@ const get = async function(key, _callback) {
 };
 
 const set = async function(key, value) {
+  console.log(key)
   // 监听者，预计用于tools里color的内存数据维护
   callback(key, value);
   let str = await wx.getStorageSync(keys.mainKey);

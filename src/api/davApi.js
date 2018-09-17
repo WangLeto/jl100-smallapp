@@ -6,10 +6,10 @@ import saveLocal from './saveLocal';
 const apiRoot = configure.apiRoot;
 const fileName = configure.fileName;
 
-const getAuthInfo = async (account, password) => {
+const getAuthInfo = (account, password) => {
   if (!account) {
-    account = await saveLocal.getAccount();
-    password = await saveLocal.getPassword();
+    account = saveLocal.getAccount();
+    password = saveLocal.getPassword();
   }
   // console.log('account:' + account, 'password:' + password);
   return 'Basic ' + base64.encode(account + ':' + password);

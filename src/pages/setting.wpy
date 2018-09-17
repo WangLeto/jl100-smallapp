@@ -141,7 +141,7 @@ export default class Demo extends wepy.page {
           return;
         }
         tips.toastSuccess('配置成功！');
-        await saveLocal.saveAccountPassword(this.account, this.password);
+        saveLocal.saveAccountPassword(this.account, this.password);
         dav.delTestFile();
         let records = await recordManager.getRecords();
         console.log(records);
@@ -160,7 +160,7 @@ export default class Demo extends wepy.page {
     changeSyncSwitch() {
       this.manualSync = !this.manualSync;
       if (this.manualSync) {
-        this.verifyAccount(settingManager.set, [settingManager.keys.manualSync, this.manualSync]);
+        this.verifyAccount(() => settingManager.set(settingManager.keys.manualSync, this.manualSync));
       } else {
         settingManager.set(settingManager.keys.manualSync, this.manualSync);
       }
@@ -204,10 +204,12 @@ export default class Demo extends wepy.page {
     }
   };
 
-  async verifyAccount(suc_callback, args) {
-    let password = await saveLocal.getPassword();
+  async verifyAccount(suc_callback) {
+    // 神奇语法，可以让 switch 弹回去
+    await (() => null)();
+    let password = saveLocal.getPassword();
     if (!!password) {
-      suc_callback(...args);
+      suc_callback.apply(this, arguments);
     } else {
       tips.toastTip('请先完善账号', 2500);
       this.manualSync = false;
@@ -215,11 +217,11 @@ export default class Demo extends wepy.page {
     }
   }
 
-  async onLoad() {
-    this.manualSync = await settingManager.get(settingManager.keys.manualSync);
-    this.binaryShow = await settingManager.get(settingManager.keys.binaryShow);
-    let account = await saveLocal.getAccount();
-    let password = await saveLocal.getPassword();
+  onLoad() {
+    this.manualSync = settingManager.get(settingManager.keys.manualSync);
+    this.binaryShow = settingManager.get(settingManager.keys.binaryShow);
+    let account = saveLocal.getAccount();
+    let password = saveLocal.getPassword();
     if (account && password) {
       this.account = account;
       this.password = password;

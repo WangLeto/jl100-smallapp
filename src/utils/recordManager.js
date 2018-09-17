@@ -4,18 +4,17 @@ import dav from '../api/davApi';
 import tips from './tips';
 import settingManager from '../utils/settingManager';
 
-// 数据格式：{timestamp: 155xxx, items: [{d: '18-09-02', t: 0, w: 'bala'}, {}]}
+// 数据格式：{timestamp: 155xxx, items: [{d: '18-09-02', t: 0}, {}]}
 
-const addRecord = async function(year, month, day, times, text = '') {
-  let records = await saveLocal.getRecordParsed();
+const addRecord = function(year, month, day, times) {
+  let records = saveLocal.getRecordParsed();
   records = initRecordsInCase(records);
   let date = year % 100 + '-' + (month > 9 ? month : '0' + month) + '-' + (day > 9 ? day : '0' + day);
   // console.log(date);
   _.remove(records.items, { 'd': date });
   records.items.push({
     d: date,
-    t: times,
-    w: text
+    t: times
   });
   records.timestamp = _.now();
   saveLocal.saveRecord(records);
@@ -23,18 +22,19 @@ const addRecord = async function(year, month, day, times, text = '') {
 };
 
 const getRecords = async function() {
-  let manualSync = await settingManager.get(settingManager.keys.manualSync);
+  let manualSync = settingManager.get(settingManager.keys.manualSync);
   if (manualSync) {
-    return await saveLocal.getRecordParsed();
+    return saveLocal.getRecordParsed();
   }
 
   let str = await dav.getStrAsync();
   // 文件被删，等待重建
   if (!str) {
-    return await saveLocal.getRecordParsed();
-  };
+    return saveLocal.getRecordParsed();
+  }
+
   let cloudRecords = typeof str === 'string' ? JSON.parse(str) : str;
-  let localRecords = await saveLocal.getRecordParsed();
+  let localRecords = saveLocal.getRecordParsed();
   if (!localRecords) {
     await showModalPromised({
       title: '发现云端备份',
@@ -97,20 +97,18 @@ const keepData = async function(records, keepCloud = true) {
     records.timestamp = _.now();
     await dav.putStrAsync(records);
   }
-  await saveLocal.saveRecord(records);
+  saveLocal.saveRecord(records);
   tips.hideLoading();
   return records;
 };
 
 // 重构云端文件
 const rebuildCloudBackup = async function() {
-  let records = await saveLocal.getRecordParsed();
+  let records = saveLocal.getRecordParsed();
   records = initRecordsInCase(records);
   records.timestamp = _.now();
-  await Promise.all([
-    saveLocal.saveRecord(records),
-    dav.putStrAsync(records)
-  ]);
+  await dav.putStrAsync(records);
+  saveLocal.saveRecord(records);
 };
 
 const initRecordsInCase = (records) => {

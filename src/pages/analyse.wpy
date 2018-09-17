@@ -240,7 +240,7 @@ export default class Analyse extends wepy.page {
     }];
   }
 
-  async onLoad() {
+  onLoad() {
     try {
       var res = wx.getSystemInfoSync();
       this.windowWidth = res.windowWidth * .95;
@@ -248,7 +248,7 @@ export default class Analyse extends wepy.page {
       console.error('getSystemInfoSync failed!');
     }
 
-    let records = await saveLocal.getRecordParsed();
+    let records = saveLocal.getRecordParsed();
     if (!records) {
       wx.showModal({
         title: '暂无数据',
@@ -261,7 +261,7 @@ export default class Analyse extends wepy.page {
       return;
     }
     this.recordsItems = records.items;
-    this.times = await settingManager.get(settingManager.keys.timesArray);
+    this.times = settingManager.get(settingManager.keys.timesArray);
 
     let dateToken = _.sortBy(_.uniqBy(_.map(this.recordsItems, e => {
       return e.d.slice(0, 5);

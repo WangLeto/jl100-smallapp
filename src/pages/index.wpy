@@ -74,7 +74,9 @@ export default class Index extends wepy.page {
   computed = {
     editButtonText() {
       let times = this.getDayRecord(this.currentDay).t;
-      // console.log(times)
+      if (!this.timesArrayText) {
+        return '';
+      }
       if (!times) {
         if (this.currentYear === this.year && this.currentMonth === this.month &&
           this.currentDay === this.day) {
@@ -142,10 +144,7 @@ export default class Index extends wepy.page {
   };
 
   async onLoad() {
-    if (await accountExists()) {
-      this.records = await recordManager.getRecords();
-      console.log('got records');
-    }
+    this.records = await recordManager.getRecords();
     this.refreshMonthStyle();
     this.drawChosenDayAndToday();
     this.$apply();
@@ -289,7 +288,6 @@ export default class Index extends wepy.page {
     this.timesArray = await settingManager.get(settingManager.keys.timesArray);
     this.timesArrayText = _.map(this.timesArray, 'text');
     this.manualSync = await settingManager.get(settingManager.keys.manualSync);
-
     let binaryShow = await settingManager.get(settingManager.keys.binaryShow);
     if (binaryShow !== this.binaryShow) {
       this.binaryShow = binaryShow;
