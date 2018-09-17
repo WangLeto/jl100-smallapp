@@ -20,7 +20,9 @@ const colors = {
   sunday: {
     color: '#f488cd',
     back: 'transparent'
-  }
+  },
+  defaultZero: '#F3F9BB',
+  defaultHigh: '#8e6391'
 };
 const chosenDayToken = '__isCurrentChosenDayHighlight';
 const settingKeys = {
@@ -31,6 +33,8 @@ const settingKeys = {
   timesArray: 'timesArray',
   binaryShow: 'binaryShow'
 };
+const defaultTimesArray = [{ text: '0 😘', num: 0 }, { text: '1 😑', num: 1 }, { text: '2 ☹️', num: 2 },
+  { text: '3 😣', num: 3 }, { text: '4 😵', num: 4 }, { text: '>=5 😱', num: 5 }];
 
 module.exports = {
   apiRoot,
@@ -39,5 +43,6 @@ module.exports = {
   testFileName,
   colors,
   chosenDayToken,
-  settingKeys
+  settingKeys,
+  defaultTimesArray
 };

@@ -41,6 +41,9 @@ const request = async (params = {}, fail_fun = null, success_fun = null) => {
 };
 
 const getStrAsync = async (authInfo = null) => {
+  if (!saveLocal.accountExists()) {
+    return null;
+  }
   let r = await request({
     authInfo: authInfo
   });
