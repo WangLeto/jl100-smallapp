@@ -34,7 +34,7 @@ const defaultSetting = function(key) {
   case keys.manualSync:
     return false;
   case keys.color1:
-    return '#8dd3bb';
+    return '#F3F9BB';
   case keys.color2:
     return '#8e6391';
   case keys.timesArray:

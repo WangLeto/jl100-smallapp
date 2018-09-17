@@ -22,7 +22,7 @@
     </view>
 
     <view class="button-sp-area">
-      <picker @change="chooseTimes" class="{{alterableDay ? '' : 'hide'}}" value="{{times}}" range="{{timesArrayText}}">
+      <picker @change="chooseTimes" class="{{alterableDay ? '' : 'hide'}}" value="{{currentTimes}}" range="{{timesArrayText}}">
         <button class="edit-record">
           {{editButtonText}}
         </button>
@@ -39,7 +39,6 @@
 <script>
 import wepy from 'wepy';
 import dav from '../api/davApi';
-import { accountExists } from '../api/saveLocal';
 import _ from 'lodash';
 import tips from '../utils/tips';
 import { colors, chosenDayToken } from '../api/configure';
@@ -64,6 +63,7 @@ export default class Index extends wepy.page {
     currentDay: new Date().getDate(),
     str: MONTHS[new Date().getMonth()],  // 月份字符串
     daysStyle: null,
+    currentTimes: 0,
     timesArray: null,
     timesArrayText: null,
     records: null,
@@ -74,6 +74,7 @@ export default class Index extends wepy.page {
   computed = {
     editButtonText() {
       let times = this.getDayRecord(this.currentDay).t;
+      this.currentTimes = times;
       if (!this.timesArrayText) {
         return '';
       }
