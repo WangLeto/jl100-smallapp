@@ -15,30 +15,33 @@
         <view class="del-view">删除</view>
         <view class="add-view">添加</view>
       </view>
-      <view class="row">
-        <view class="num" style="color: #666;">0</view>
-        <input type="text" class="text" value="{{times[0].text}}"/>
-        <view class="del-view">
-          <button class="op-btn" style="box-shadow: none" disabled @tap="del">-</button>
+      <scroll-view scroll-y>
+        <view class="row">
+          <view class="num" style="color: #666;">0</view>
+          <input type="text" class="text" value="{{times[0].text}}"/>
+          <view class="del-view">
+            <button class="op-btn" style="box-shadow: none" disabled @tap="del">-</button>
+          </view>
+          <view class="add-view">
+            <button class="op-btn" @tap="add({{index + 1}})">+</button>
+          </view>
         </view>
-        <view class="add-view">
-          <button class="op-btn" @tap="add({{index + 1}})">+</button>
+        <view class="row {{index === timesSlice.length - 1 ? 'last-row' : ''}}" wx:for="{{timesSlice}}"
+              wx:key="{{item.num}}">
+          <view class="num">
+            <input class="num-input" type="number" value="{{item.num}}"/>
+          </view>
+          <view class="text">
+            <input class="text-input" type="text" value="{{item.text}}"/>
+          </view>
+          <view class="del-view">
+            <button class="op-btn" @tap="del({{index + 1}})">-</button>
+          </view>
+          <view class="add-view">
+            <button class="op-btn" @tap="add({{index + 1}})">+</button>
+          </view>
         </view>
-      </view>
-      <view class="row" wx:for="{{timesSlice}}">
-        <view class="num">
-          <input class="num-input" type="number" value="{{item.num}}"/>
-        </view>
-        <view class="text">
-          <input class="text-input" type="text" value="{{item.text}}"/>
-        </view>
-        <view class="del-view">
-          <button class="op-btn" @tap="del({{index + 1}})">-</button>
-        </view>
-        <view class="add-view">
-          <button class="op-btn" @tap="add({{index + 1}})">+</button>
-        </view>
-      </view>
+      </scroll-view>
     </view>
     <view class="button-sp-area">
       <button @tap="submit">保存</button>
@@ -48,6 +51,7 @@
 <script>
 import wepy from 'wepy';
 import _ from 'lodash';
+import SM from '../utils/settingManager';
 
 export default class Times extends wepy.page {
   data = {
@@ -80,5 +84,9 @@ export default class Times extends wepy.page {
       });
     }
   };
+
+  onLoad() {
+    this.times = SM.get(SM.keys.timesArray);
+  }
 }
 </script>

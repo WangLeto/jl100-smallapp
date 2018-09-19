@@ -10,8 +10,9 @@
   display: flex;
   height: @rowHeight;
   padding: 5px;
-  border: @border;
+  border-bottom: @border;
   border-top: none;
+  background: #f8f8f8;
 }
 
 .header {
@@ -28,7 +29,7 @@
 .op-btn {
   width: 80%;
   height: 80%;
-  line-height: @rowHeight * .64;
+  line-height: @rowHeight * .8 * .8;
 }
 
 .text {
@@ -51,7 +52,7 @@
   justify-content: flex-start;
   padding-left: .5rem;
   box-sizing: border-box;
-  border-bottom: solid 1px #cccccc;
+  border-bottom: @border;
 }
 
 .button-sp-area {
@@ -76,4 +77,25 @@
 .header > .text {
   border: none;
   justify-content: center;
+}
+
+scroll-view {
+  height: 180px;
+  border: @border;
+  border-left: @border;
+  border-top: none;
+  background: #EEEEEE;
+  box-sizing: border-box;
+}
+
+.no-bottom {
+  border-bottom: none;
+}
+
+.header {
+  border: @border;
+}
+
+.last-row {
+  margin-bottom: 30px;
 }

@@ -36,16 +36,25 @@ module.exports = {
         'transform-class-properties',
         'transform-decorators-legacy',
         'transform-object-rest-spread',
-        'transform-export-extensions',
+        'transform-export-extensions'
       ]
     }
   },
   plugins: {
+    replace: {
+      filter: /\.wxss$/,
+      config: {
+        find: /[0-9\.]+px/gi,
+        replace: (match) => {
+          return parseFloat(match.slice(0, match.length - 2)) * 2 + 'rpx';
+        }
+      }
+    }
   },
   appConfig: {
     noPromiseAPI: ['createSelectorQuery']
   }
-}
+};
 
 if (prod) {
 
@@ -56,8 +65,7 @@ if (prod) {
   module.exports.plugins = {
     uglifyjs: {
       filter: /\.js$/,
-      config: {
-      }
+      config: {}
     },
     imagemin: {
       filter: /\.(jpg|png|jpeg)$/,
@@ -69,6 +77,15 @@ if (prod) {
           quality: 80
         }
       }
+    },
+    replace: {
+      filter: /\.wxss$/,
+      config: {
+        find: /[0-9\.]+px/gi,
+        replace: (match) => {
+          return parseFloat(match.slice(0, match.length - 2)) * 2 + 'rpx';
+        }
+      }
     }
-  }
+  };
 }
