@@ -54,7 +54,7 @@
         </view>
       </view>
     </view>
-    <view class="weui-media-box__info">在首页显示为0/有两种颜色，不细分次数</view>
+    <view class="weui-media-box__info">在首页显示为有或无两种颜色，不区分次数</view>
   </view>
 
   <view class="page__bd">
@@ -73,6 +73,9 @@
         <view class="showing-color" style="background: {{highColor}};"></view>
       </view>
     </view>
+  </view>
+  <view class="button-sp-area color-btn">
+    <button @tap="defaultColor">默认配色</button>
   </view>
 
   <view class="page__bd">
@@ -107,6 +110,7 @@ import wepy from 'wepy';
 import saveLocal from '../api/saveLocal';
 import tips from '../utils/tips';
 import dav from '../api/davApi';
+import { colors } from '../api/configure';
 import settingManager from '../utils/settingManager';
 import recordManager from '../utils/recordManager';
 import { colorMaker } from '../utils/tools';
@@ -201,6 +205,10 @@ export default class Demo extends wepy.page {
         });
         break;
       }
+    },
+    async defaultColor() {
+      await settingManager.set(settingManager.keys.color1, colors.defaultZero);
+      settingManager.set(settingManager.keys.color2, colors.defaultHigh);
     }
   };
 
