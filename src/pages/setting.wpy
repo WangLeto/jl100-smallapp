@@ -60,13 +60,13 @@
   <view class="page__bd">
     <view class="weui-cells__title">视图颜色设置</view>
     <view class="weui-cells weui-cells_after-title">
-      <view class="weui-cell weui-cell_input" @tap="setColor(0)">
+      <view class="weui-cell weui-cell_input" @tap="setColor({{0}})">
         <view class="weui-cell__hd">
           <view class="weui-label">0次</view>
         </view>
         <view class="showing-color" style="background: {{zeroColor}};"></view>
       </view>
-      <view class="weui-cell weui-cell_input" @tap="setColor(1)">
+      <view class="weui-cell weui-cell_input" @tap="setColor({{1}})">
         <view class="weui-cell__hd">
           <view class="weui-label">高频</view>
         </view>
@@ -114,6 +114,7 @@ import { colors } from '../api/configure';
 import settingManager from '../utils/settingManager';
 import recordManager from '../utils/recordManager';
 import { colorMaker } from '../utils/tools';
+import { throttle } from '../utils/throttleUtil';
 
 export default class Demo extends wepy.page {
   data = {
@@ -138,27 +139,31 @@ export default class Demo extends wepy.page {
     inputPassword(e) {
       this.password = e.detail.value;
     },
-    async submit() {
-      if (this.account && this.password) {
-        if (!(await dav.testAccount(this.account, this.password))) {
-          tips.toastErr('账号或密码错误');
-          return;
+    submit() {
+      throttle(async function() {
+        if (this.account && this.password) {
+          if (!(await dav.testAccount(this.account, this.password))) {
+            tips.toastErr('账号或密码错误');
+            return;
+          }
+          tips.toastSuccess('配置成功！');
+          saveLocal.saveAccountPassword(this.account, this.password);
+          dav.delTestFile();
+          let records = await recordManager.getRecords();
+          console.log(records);
+          this.$parent.globalData.tmpRecords = records;
+          this.$parent.globalData.reloadData = true;
+          wx.navigateBack();
+        } else {
+          tips.toastErr('未完成输入');
         }
-        tips.toastSuccess('配置成功！');
-        saveLocal.saveAccountPassword(this.account, this.password);
-        dav.delTestFile();
-        let records = await recordManager.getRecords();
-        console.log(records);
-        this.$parent.globalData.tmpRecords = records;
-        this.$parent.globalData.reloadData = true;
-        wx.navigateBack();
-      } else {
-        tips.toastErr('未完成输入');
-      }
+      });
     },
     showTutorial() {
-      wx.navigateTo({
-        url: 'tutorial'
+      throttle(function() {
+        wx.navigateTo({
+          url: 'tutorial'
+        });
       });
     },
     changeSyncSwitch() {
@@ -191,24 +196,28 @@ export default class Demo extends wepy.page {
       });
     },
     setColor(c) {
-      let color1 = colorMaker.color1();
-      let color2 = colorMaker.color2();
-      switch (c) {
-      case '0':
-        wx.navigateTo({
-          url: 'color?hex=' + color1 + '&num=1'
-        });
-        break;
-      case '1':
-        wx.navigateTo({
-          url: 'color?hex=' + color2 + '&num=2'
-        });
-        break;
-      }
+      throttle(function() {
+        let color1 = colorMaker.color1();
+        let color2 = colorMaker.color2();
+        switch (c) {
+        case 0:
+          wx.navigateTo({
+            url: 'color?hex=' + color1 + '&num=1'
+          });
+          break;
+        case 1:
+          wx.navigateTo({
+            url: 'color?hex=' + color2 + '&num=2'
+          });
+          break;
+        }
+      });
     },
     async defaultColor() {
-      await settingManager.set(settingManager.keys.color1, colors.defaultZero);
-      settingManager.set(settingManager.keys.color2, colors.defaultHigh);
+      throttle(async function() {
+        await settingManager.set(settingManager.keys.color1, colors.defaultZero);
+        settingManager.set(settingManager.keys.color2, colors.defaultHigh);
+      })
     }
   };
 

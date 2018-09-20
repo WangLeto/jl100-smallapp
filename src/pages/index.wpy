@@ -46,6 +46,7 @@ import { colors, chosenDayToken } from '../api/configure';
 import recordManager from '../utils/recordManager';
 import settingManager from '../utils/settingManager';
 import { colorMaker, colorTool } from '../utils/tools';
+import { throttle } from '../utils/throttleUtil';
 
 const MONTHS = ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May.', 'June.', 'July.', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'];
 export default class Index extends wepy.page {
@@ -102,8 +103,10 @@ export default class Index extends wepy.page {
 
   methods = {
     goSetting() {
-      wx.navigateTo({
-        url: 'setting'
+      throttle(function() {
+        wx.navigateTo({
+          url: 'setting'
+        });
       });
     },
     chooseDay(e) {
@@ -143,8 +146,10 @@ export default class Index extends wepy.page {
       tips.toastSuccess('上传成功');
     },
     goAnalyse() {
-      wx.navigateTo({
-        url: 'analyse'
+      throttle(function() {
+        wx.navigateTo({
+          url: 'analyse'
+        });
       });
     }
   };
