@@ -1,14 +1,16 @@
-const toastErr = function(title) {
+const toastErr = function(title, duration = 1500) {
   wx.showToast({
     title: title,
-    image: '../assets/fail.png'
+    image: '../assets/fail.png',
+    duration: duration
   });
 };
 
-const toastSuccess = function(title) {
+const toastSuccess = function(title, duration = 1500) {
   wx.showToast({
     title: title,
-    image: '../assets/success.png'
+    image: '../assets/success.png',
+    duration: duration
   });
 };
 
@@ -20,10 +22,11 @@ const toastTip = function(title, duration = 1500) {
   });
 };
 
-const toastText = function(str) {
+const toastText = function(str, duration = 1500) {
   wx.showToast({
     title: str,
-    icon: 'none'
+    icon: 'none',
+    duration: duration
   });
 };
 
