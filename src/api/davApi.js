@@ -41,9 +41,6 @@ const request = async (params = {}, fail_fun = null, success_fun = null) => {
 };
 
 const getStrAsync = async (authInfo = null) => {
-  if (!saveLocal.accountExists()) {
-    return null;
-  }
   let r = await request({
     authInfo: authInfo
   });
@@ -89,10 +86,26 @@ const delTestFile = async () => {
   });
 };
 
+const validNetwork = async function() {
+  // wifi/2g/3g/4g/unknown(Android下不常见的网络类型)/none(无网络)
+  let networkType = (await new Promise(resolve => {
+    wx.getNetworkType({
+      success: res => {
+        resolve(res);
+      }
+    });
+  })).networkType;
+  if (networkType === 'unknown' || networkType === 'none') {
+    return false;
+  }
+  return true;
+};
+
 module.exports = {
   getStrAsync,
   putStr,
   putStrAsync,
   testAccount,
-  delTestFile
+  delTestFile,
+  validNetwork
 };

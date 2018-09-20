@@ -22,7 +22,8 @@
     </view>
 
     <view class="button-sp-area">
-      <picker @change="chooseTimes" class="{{alterableDay ? '' : 'hide'}}" value="{{currentTimes}}" range="{{timesArrayText}}">
+      <picker @change="chooseTimes" class="{{alterableDay ? '' : 'hide'}}" value="{{currentTimes}}"
+              range="{{timesArrayText}}">
         <button class="edit-record">
           {{editButtonText}}
         </button>
@@ -134,6 +135,10 @@ export default class Index extends wepy.page {
       }
     },
     async sync() {
+      if (!(await dav.validNetwork())) {
+        tips.toastErr('网络错误');
+        return;
+      }
       await dav.putStrAsync(this.records);
       tips.toastSuccess('上传成功');
     },

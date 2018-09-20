@@ -40,7 +40,7 @@
       </view>
     </view>
   </view>
-  <view class="weui-media-box__info">手动上传本地数据，云端仅作为备份。较为节省流量</view>
+  <view class="weui-media-box__info">需要手动上传数据，云端作为备份。节省流量，可离线使用</view>
   <view class="button-sp-area">
     <button @tap="submit">验证账号</button>
   </view>

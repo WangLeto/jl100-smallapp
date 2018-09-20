@@ -27,22 +27,13 @@ const getRecords = async function() {
     return saveLocal.getRecordParsed();
   }
 
-  let getNetworkType = function() {
-    return new Promise(function(resolve) {
-      let obj = {
-        success: function(res) {
-          resolve(res);
-        }
-      };
-      wx.getNetworkType(obj);
-    });
-  }
-  // wifi/2g/3g/4g/unknown(Android下不常见的网络类型)/none(无网络)
-  let networkType = (await getNetworkType()).networkType;
-  if (networkType === 'unknown' || networkType === 'none') {
+  if (!saveLocal.accountExists()) {
+    return saveLocal.getRecordParsed();
+  } else if (!(await dav.validNetwork())) {
     tips.toastText('无网络，同步功能将无法正常使用！', 3500);
     return saveLocal.getRecordParsed();
   }
+
   let str = await dav.getStrAsync();
   // 文件被删，等待重建
   if (!str) {
