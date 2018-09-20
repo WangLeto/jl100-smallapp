@@ -140,19 +140,20 @@ export default class Demo extends wepy.page {
       this.password = e.detail.value;
     },
     submit() {
+      let that = this;
       throttle(async function() {
-        if (this.account && this.password) {
-          if (!(await dav.testAccount(this.account, this.password))) {
+        if (that.account && that.password) {
+          if (!(await dav.testAccount(that.account, that.password))) {
             tips.toastErr('账号或密码错误');
             return;
           }
           tips.toastSuccess('配置成功！');
-          saveLocal.saveAccountPassword(this.account, this.password);
+          saveLocal.saveAccountPassword(that.account, that.password);
           dav.delTestFile();
           let records = await recordManager.getRecords();
           console.log(records);
-          this.$parent.globalData.tmpRecords = records;
-          this.$parent.globalData.reloadData = true;
+          that.$parent.globalData.tmpRecords = records;
+          that.$parent.globalData.reloadData = true;
           wx.navigateBack();
         } else {
           tips.toastErr('未完成输入');

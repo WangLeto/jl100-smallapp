@@ -42,6 +42,7 @@
           </view>
         </view>
       </scroll-view>
+      <view class="weui-media-box__info"> 点击数量、文字进行编辑</view>
     </view>
     <view class="button-sp-area">
       <button @tap="submit">保存</button>
