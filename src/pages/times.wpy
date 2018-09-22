@@ -73,6 +73,7 @@ import wepy from 'wepy';
 import _ from 'lodash';
 import settingManager from '../utils/settingManager';
 import saveLocal from '../api/saveLocal';
+import { showModalPromised } from '../utils/tools';
 
 export default class Times extends wepy.page {
   data = {
@@ -135,16 +136,6 @@ export default class Times extends wepy.page {
     let recordsTimesMax = parseInt(records[0].t);
     let times = _.sortBy(this.times, 'num');
     let timesLength = times.length;
-    const showModalPromised = function(obj) {
-      return new Promise(function(resolve) {
-        obj = Object.assign(obj, {
-          success: function(res) {
-            resolve(res);
-          }
-        });
-        wx.showModal(obj);
-      });
-    };
     let timesUniq = _.uniqBy(_.map(times, 'num'));
     if (timesUniq.length < times.length) {
       await showModalPromised({

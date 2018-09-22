@@ -3,8 +3,9 @@ import _ from 'lodash';
 import dav from '../api/davApi';
 import tips from './tips';
 import settingManager from '../utils/settingManager';
+import { showModalPromised } from './tools';
 
-// 数据格式：{timestamp: 155xxx, items: [{d: '18-09-02', t: 0}, {}]}
+// 数据格式：{unlock: false, timestamp: 155xxx, items: [{d: '18-09-02', t: 0}, {}]}
 
 const addRecord = function(year, month, day, times) {
   let records = saveLocal.getRecordParsed();
@@ -87,17 +88,6 @@ const showModal = async function(cloudRecords, localRecords) {
   }
 };
 
-const showModalPromised = function(obj) {
-  return new Promise(function(resolve) {
-    obj = Object.assign(obj, {
-      success: function(res) {
-        resolve(res);
-      }
-    });
-    wx.showModal(obj);
-  });
-};
-
 const keepData = async function(records, keepCloud = true) {
   tips.loading('正在处理');
   if (!keepCloud) {
@@ -121,9 +111,13 @@ const rebuildCloudBackup = async function() {
 const initRecordsInCase = (records) => {
   if (!records || !records.timestamp) {
     records = {
+      unlock: false,
       timestamp: 0,
       items: []
     };
+  }
+  if (!records.unlock) {
+    records = Object.assign({ unlock: false }, records);
   }
   return records;
 };

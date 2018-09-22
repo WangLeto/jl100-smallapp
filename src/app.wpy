@@ -16,6 +16,7 @@ export default class extends wepy.app {
       'pages/index',
       'pages/analyse',
       'pages/color',
+      'pages/lock',
       'pages/setting',
       'pages/times',
       'pages/tutorial'

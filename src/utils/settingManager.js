@@ -42,6 +42,10 @@ const defaultSetting = function(key) {
     return _.cloneDeep(defaultTimesArray);
   case keys.firstUse:
     return true;
+  case keys.lockPassword:
+    return '';
+  case keys.lockOccasion:
+    return 0;
   }
 };
 

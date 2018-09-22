@@ -76,8 +76,20 @@ const colorTool = {
   }
 };
 
+const showModalPromised = function(obj) {
+  return new Promise(function(resolve) {
+    obj = Object.assign(obj, {
+      success: function(res) {
+        resolve(res);
+      }
+    });
+    wx.showModal(obj);
+  });
+};
+
 export {
   sleep,
   colorTool,
-  colorMaker
+  colorMaker,
+  showModalPromised
 };
