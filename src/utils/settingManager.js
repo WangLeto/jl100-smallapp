@@ -1,4 +1,5 @@
 import { settingKeys as keys, colors, defaultTimesArray } from '../api/configure';
+import _ from 'lodash';
 
 let callback = null;
 const get = function(key, _callback) {
@@ -10,7 +11,8 @@ const get = function(key, _callback) {
     return defaultSetting(key);
   }
   let value = (JSON.parse(str))[key];
-  if (!value) {
+  // 这里不能用 !value 进行判断，因为有布尔变量！！！
+  if (value === undefined || value === null) {
     return defaultSetting(key);
   }
   return value;
@@ -33,11 +35,13 @@ const defaultSetting = function(key) {
   case keys.manualSync:
     return false;
   case keys.color1:
-    return colors.defaultZero;
+    return _.cloneDeep(colors.defaultZero);
   case keys.color2:
-    return colors.defaultHigh;
+    return _.cloneDeep(colors.defaultHigh);
   case keys.timesArray:
-    return defaultTimesArray;
+    return _.cloneDeep(defaultTimesArray);
+  case keys.firstUse:
+    return true;
   }
 };
 

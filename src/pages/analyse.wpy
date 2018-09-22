@@ -41,7 +41,7 @@
       </view>
     </view>
   </view>
-  <view class="weui-media-box__info">开启后，无法在折线图区域上下拖动页面</view>
+  <view class="weui-media-box__info">开启后，可能无法在折线图区域上下拖动页面</view>
 </template>
 <script>
 import wepy from 'wepy';

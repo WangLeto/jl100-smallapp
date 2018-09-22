@@ -159,6 +159,28 @@ export default class Index extends wepy.page {
     this.refreshMonthStyle();
     this.drawChosenDayAndToday();
     this.$apply();
+    if (settingManager.get(settingManager.keys.firstUse)) {
+      settingManager.set(settingManager.keys.firstUse, false);
+      this.showGuide();
+    }
+  }
+
+  // 显示初次使用引导
+  showGuide() {
+    wx.showModal({
+      title: '初次使用引导',
+      content: '你可能是初次使用本程序，可以进行不良记录的频次设置（自行进入：设置-频次设置），默认为0-5共6级',
+      confirmText: '前往设置',
+      success: (e) => {
+        if (e.confirm) {
+          wx.navigateTo({
+            url: 'times'
+          });
+        } else {
+          tips.toastText('你可以随时进入 [设置-频次设置] 进行频次设置', 3500);
+        }
+      }
+    });
   }
 
   // 高亮选择的日期

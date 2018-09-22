@@ -103,3 +103,82 @@ scroll-view {
 .button-sp-area {
   margin-top: 30px;
 }
+
+.bottom-btn {
+  display: flex;
+  button {
+    width: 40%;
+  }
+  .save {
+    background: #2b6597;
+  }
+}
+
+.result-mask {
+  position: fixed;
+  background: black;
+  opacity: 0.75;
+  width: 100%;
+  height: 100%;
+  z-index: 50;
+}
+
+.show-modal {
+  margin: auto;
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 15px 20px;
+  box-sizing: border-box;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 60%;
+  border-radius: 10px;
+  background: white;
+  z-index: 60;
+  scroll-view {
+    height: 200px;
+    border-radius: 5px;
+    border: solid 1.5px #999;
+    .result-row {
+      height: 40px;
+      line-height: 40px;
+      display: flex;
+      text-align: center;
+    }
+    .result-table-header {
+      font-weight: bold;
+      border-bottom: solid .5px #cccccc;
+    }
+    .result-row > view {
+      display: inline;
+      border-right: solid .5px #cccccc;
+    }
+    .result-row {
+      border-right: none;
+    }
+    .result-num {
+      width: 30%;
+    }
+    .result-text {
+      width: 70%;
+    }
+  }
+  .result-title {
+    color: #666;
+    margin: 0 auto 5px;
+  }
+}
+
+.result-btn {
+  display: flex;
+  justify-content: space-between;
+  .result-close {
+    display: inline;
+    width: 40%;
+  }
+}

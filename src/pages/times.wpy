@@ -2,9 +2,27 @@
 @import "../style/times";
 </style>
 <template>
+  <view class="result-mask" wx:if="{{showResult}}"></view>
+  <view class="show-modal" wx:if="{{showResult}}">
+    <view class="result-title">结果确认</view>
+    <scroll-view scroll-y>
+      <view class="result-row result-table-header">
+        <view class="result-num">频次</view>
+        <view class="result-text">文字</view>
+      </view>
+      <view class="result-row" wx:for="{{timesOrdered}}" wx:key="{{item.num}}">
+        <view class="result-num">{{item.num}}</view>
+        <view class="result-text">{{item.text}}</view>
+      </view>
+    </scroll-view>
+    <view class="result-btn">
+      <button class="result-close" @tap="closeResult({{true}})">保存</button>
+      <button class="result-close" @tap="closeResult({{false}})">返回</button>
+    </view>
+  </view>
   <view class="page__hd">
     <view class="page__title">频次设置</view>
-    <view class="page__desc">自定义频次</view>
+    <view class="page__desc">预设每天不良行为的可能次数，及相应的文字</view>
   </view>
   <view class="page__bd">
     <view class="weui-cells__title">数量分级设置</view>
@@ -18,7 +36,7 @@
       <scroll-view scroll-y>
         <view class="row">
           <view class="num" style="color: #666;">0</view>
-          <input type="text" class="text" value="{{times[0].text}}"/>
+          <input type="text" class="text" value="{{times[0].text}}" @input="inputText({{0}})"/>
           <view class="del-view">
             <button class="op-btn" style="box-shadow: none" disabled @tap="del">-</button>
           </view>
@@ -29,10 +47,10 @@
         <view class="row {{index === timesSlice.length - 1 ? 'last-row' : ''}}" wx:for="{{timesSlice}}"
               wx:key="{{item.num}}">
           <view class="num">
-            <input class="num-input" type="number" value="{{item.num}}"/>
+            <input class="num-input" type="number" value="{{item.num}}" @input="inputNum({{index + 1}})"/>
           </view>
           <view class="text">
-            <input class="text-input" type="text" value="{{item.text}}"/>
+            <input class="text-input" type="text" value="{{item.text}}" @input="inputText({{index + 1}})"/>
           </view>
           <view class="del-view">
             <button class="op-btn" @tap="del({{index + 1}})">-</button>
@@ -44,31 +62,29 @@
       </scroll-view>
       <view class="weui-media-box__info"> 点击数量、文字进行编辑</view>
     </view>
-    <view class="button-sp-area">
-      <button @tap="submit">保存</button>
+    <view class="button-sp-area bottom-btn">
+      <button @tap="save" class="save">保存</button>
+      <button @tap="back">返回</button>
     </view>
   </view>
 </template>
 <script>
 import wepy from 'wepy';
 import _ from 'lodash';
-import SM from '../utils/settingManager';
+import settingManager from '../utils/settingManager';
+import saveLocal from '../api/saveLocal';
 
 export default class Times extends wepy.page {
   data = {
-    times: [{
-      num: 0,
-      text: '00'
-    }, {
-      num: 123,
-      text: '11'
-    }, {
-      num: 222,
-      text: '22222222'
-    }]
+    times: null,
+    showResult: false,
+    timesOrdered: null
   };
   computed = {
     timesSlice() {
+      if (!this.times) {
+        return null;
+      }
       return this.times.slice(1);
     }
   };
@@ -78,16 +94,79 @@ export default class Times extends wepy.page {
     },
     add(e) {
       let max = _.sortBy(this.times, 'num').reverse()[0].num;
-      console.log(max);
       this.times.splice(e + 1, 0, {
         num: max + 1,
         text: max + 1 + ''
       });
+    },
+    async save() {
+      let ok = await this.testSetting();
+      if (ok) {
+        this.timesOrdered = _.sortBy(this.times, 'num');
+        this.showResult = true;
+      }
+      this.$apply();
+    },
+    closeResult(makeSure) {
+      this.showResult = false;
+      if (makeSure) {
+        settingManager.set(settingManager.keys.timesArray, this.times);
+        wx.navigateBack({
+          delta: 2
+        });
+      }
+    },
+    back() {
+      wx.navigateBack();
+    },
+    inputText(index, e) {
+      let value = e.detail.value;
+      this.times[index].text = value;
+    },
+    inputNum(index, e) {
+      let value = e.detail.value;
+      this.times[index].num = parseInt(value);
     }
   };
 
+  async testSetting() {
+    let records = saveLocal.getRecordParsed().items;
+    records = _.orderBy(records, 't', 'desc');
+    let recordsTimesMax = parseInt(records[0].t);
+    let times = _.sortBy(this.times, 'num');
+    let timesLength = times.length;
+    const showModalPromised = function(obj) {
+      return new Promise(function(resolve) {
+        obj = Object.assign(obj, {
+          success: function(res) {
+            resolve(res);
+          }
+        });
+        wx.showModal(obj);
+      });
+    };
+    let timesUniq = _.uniqBy(_.map(times, 'num'));
+    if (timesUniq.length < times.length) {
+      await showModalPromised({
+        title: '重复数量',
+        content: '发现设置中的重复数量，请修改后再保存',
+        showCancel: false
+      });
+      return false;
+    }
+    if (recordsTimesMax + 1 > timesLength) {
+      await showModalPromised({
+        title: '分级不足',
+        content: `记录包含 ${recordsTimesMax + 1} 级数量，但当前设置只有 ${timesLength} 级`,
+        showCancel: false
+      });
+      return false;
+    }
+    return true;
+  }
+
   onLoad() {
-    this.times = SM.get(SM.keys.timesArray);
+    this.times = settingManager.get(settingManager.keys.timesArray);
   }
 }
 </script>
