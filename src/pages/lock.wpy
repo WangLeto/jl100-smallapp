@@ -1,0 +1,79 @@
+<style lang="less">
+@import "../style/lock";
+</style>
+<template>
+  <view class="page__hd">
+    <view class="page__title">密码设置</view>
+    <view class="page__desc">进行锁定的相关设置</view>
+  </view>
+  <view class="page__bd">
+    <view class="weui-cells__title">锁定密码设置</view>
+    <view class="weui-cells weui-cells_after-title">
+      <view class="weui-cell weui-cell_input weui-cell_vcode">
+        <view class="weui-cell__hd">
+          <view class="weui-label">密码</view>
+        </view>
+        <view class="weui-cell__bd">
+          <input class="weui-input" type="password" placeholder="锁定密码" @input="inputPassword" value="{{password}}"/>
+        </view>
+      </view>
+    </view>
+  </view>
+  <view class="page__bd">
+    <view class="weui-cells__title">锁定时机设置</view>
+    <view class="weui-btn-area">
+      <button class="normal-btn" @tap="chooseOccasion">{{lockOccasion}}</button>
+    </view>
+  </view>
+</template>
+<script>
+import wepy from 'wepy';
+import settingManager from '../utils/settingManager';
+import { lockOccasions } from '../api/configure';
+import saveLocal from '../api/saveLocal';
+import { showModalPromised } from '../utils/tools';
+
+export default class Lock extends wepy.page {
+  data = {
+    password: '',
+    lockOccasion: ''
+  };
+  methods = {
+    inputPassword(e) {
+      this.password = e.detail.value;
+    },
+    chooseOccasion() {
+      let that = this;
+      wx.showActionSheet({
+        itemList: lockOccasions,
+        success: function(res) {
+          if (!res.cancel) {
+            let index = res.tapIndex;
+            that.lockOccasion = lockOccasions[index];
+            that.resetOccasion(index);
+            that.$apply();
+          }
+        }
+      });
+    }
+  };
+
+  resetOccasion(index) {
+    settingManager.set(settingManager.keys.lockOccasion, index);
+  }
+
+  async onLoad() {
+    if (!saveLocal.accountExists()) {
+      await showModalPromised({
+        title: '未设置坚果云账户',
+        content: '为防止遗忘锁定密码而导致无法正常使用小程序，请先进行坚果云账户设置，从而可以利用云端文件解锁',
+        showCancel: false
+      });
+      wx.navigateBack();
+      return;
+    }
+    this.password = settingManager.get(settingManager.keys.lockPassword);
+    this.lockOccasion = lockOccasions[settingManager.get(settingManager.keys.lockOccasion)];
+  }
+}
+</script>
