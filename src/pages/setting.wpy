@@ -58,6 +58,16 @@
   </view>
 
   <view class="page__bd">
+    <view class="weui-cells__title">锁定设置</view>
+    <view class="weui-cells weui-cells_after-title">
+      <navigator url="lock" class="weui-cell weui-cell_access" hover-class="weui-cell_active">
+        <view class="weui-cell__bd">设置密码及锁定时机</view>
+        <view class="weui-cell__ft weui-cell__ft_in-access"></view>
+      </navigator>
+    </view>
+  </view>
+
+  <view class="page__bd">
     <view class="weui-cells__title">视图颜色设置</view>
     <view class="weui-cells weui-cells_after-title">
       <view class="weui-cell weui-cell_input" @tap="setColor({{0}})">
@@ -88,15 +98,6 @@
     </view>
   </view>
 
-  <view class="page__bd">
-    <view class="weui-cells__title">锁定设置</view>
-    <view class="weui-cells weui-cells_after-title">
-      <navigator url="lock" class="weui-cell weui-cell_access" hover-class="weui-cell_active">
-        <view class="weui-cell__bd">设置密码及锁定时机</view>
-        <view class="weui-cell__ft weui-cell__ft_in-access"></view>
-      </navigator>
-    </view>
-  </view>
   <view wx:if="{{showModal}}" class="modal-group">
     <view class="mask" @tap="hideModal"></view>
     <view class="modal-body">
@@ -231,8 +232,10 @@ export default class Demo extends wepy.page {
         success: (e) => {
           if (e.confirm) {
             throttle(async function() {
-              await settingManager.set(settingManager.keys.color1, colors.defaultZero);
-              settingManager.set(settingManager.keys.color2, colors.defaultHigh);
+              let records = {};
+              records[settingManager.keys.color1] = colors.defaultZero;
+              records[settingManager.keys.color2] = colors.defaultHigh;
+              settingManager.setMulti(records);
               that.$apply();
             });
           }

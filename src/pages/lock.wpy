@@ -6,6 +6,14 @@
     <view class="page__title">密码设置</view>
     <view class="page__desc">进行锁定的相关设置</view>
   </view>
+  <view class="weui-cells weui-cells_after-title">
+    <view class="weui-cell weui-cell_switch">
+      <view class="weui-cell__bd">启用锁定</view>
+      <view class="weui-cell__ft">
+        <switch checked="{{lockOn}}" @change="lockOnSwitch"/>
+      </view>
+    </view>
+  </view>
   <view class="page__bd">
     <view class="weui-cells__title">锁定密码设置</view>
     <view class="weui-cells weui-cells_after-title">
@@ -25,6 +33,9 @@
       <button class="normal-btn" @tap="chooseOccasion">{{lockOccasion}}</button>
     </view>
   </view>
+  <view class="button-sp-area">
+    <button @tap="save">保存设置</button>
+  </view>
 </template>
 <script>
 import wepy from 'wepy';
@@ -32,11 +43,22 @@ import settingManager from '../utils/settingManager';
 import { lockOccasions } from '../api/configure';
 import saveLocal from '../api/saveLocal';
 import { showModalPromised } from '../utils/tools';
+import tips from '../utils/tips';
 
 export default class Lock extends wepy.page {
   data = {
     password: '',
-    lockOccasion: ''
+    lockOccasionIndex: null,
+    lockOccasion: '',
+    lockOn: null
+  };
+  computed = {
+    lockOccasion() {
+      if (this.lockOccasionIndex === null) {
+        return '';
+      }
+      return lockOccasions[this.lockOccasionIndex];
+    }
   };
   methods = {
     inputPassword(e) {
@@ -49,12 +71,26 @@ export default class Lock extends wepy.page {
         success: function(res) {
           if (!res.cancel) {
             let index = res.tapIndex;
-            that.lockOccasion = lockOccasions[index];
-            that.resetOccasion(index);
+            that.lockOccasionIndex = index;
             that.$apply();
           }
         }
       });
+    },
+    save() {
+      if (this.lockOn && (!this.password || this.password.length === 0)) {
+        tips.toastTip('请输入密码');
+      } else {
+        console.log(this.lockOccasionIndex);
+        let records = {};
+        records[settingManager.keys.lockOccasionIndex] = this.lockOccasionIndex;
+        records[settingManager.keys.lockPassword] = this.password;
+        records[settingManager.keys.lockOn] = this.lockOn;
+        settingManager.setMulti(records);
+      }
+    },
+    lockOnSwitch() {
+      this.lockOn = !this.lockOn;
     }
   };
 
@@ -73,7 +109,9 @@ export default class Lock extends wepy.page {
       return;
     }
     this.password = settingManager.get(settingManager.keys.lockPassword);
-    this.lockOccasion = lockOccasions[settingManager.get(settingManager.keys.lockOccasion)];
+    this.lockOccasionIndex = settingManager.get(settingManager.keys.lockOccasionIndex);
+    console.log(this.lockOccasionIndex);
+    this.lockOn = settingManager.get(settingManager.keys.lockOn);
   }
 }
 </script>

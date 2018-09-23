@@ -33,14 +33,18 @@ const settingKeys = {
   timesArray: 'timesArray',
   binaryShow: 'binaryShow',
   firstUse: 'firstUse',
+  lockOn: 'lockOn',
   lockPassword: 'lockPassword',
-  lockOccasion: 'lockOccasion'
+  lockOccasionIndex: 'lockOccasionIndex',
+  // 自从上次获取解锁信息后打开次数
+  getUnlockInfoSince: 'getUnlockInfoSince'
 };
 const defaultTimesArray = [{ text: '0 😘', num: 0 }, { text: '1 😑', num: 1 }, { text: '2 ☹️', num: 2 },
   { text: '3 😣', num: 3 }, { text: '4 😵', num: 4 }, { text: '>=5 😱', num: 5 }];
 const lockOccasions = [
   '启动时', '离开小程序界面时'
 ];
+const forceGetUnlockInfoFrequency = 20;
 
 module.exports = {
   apiRoot,
@@ -51,5 +55,6 @@ module.exports = {
   chosenDayToken,
   settingKeys,
   defaultTimesArray,
-  lockOccasions
+  lockOccasions,
+  forceGetUnlockInfoFrequency
 };

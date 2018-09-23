@@ -42,7 +42,7 @@ import wepy from 'wepy';
 import dav from '../api/davApi';
 import _ from 'lodash';
 import tips from '../utils/tips';
-import { colors, chosenDayToken } from '../api/configure';
+import { colors, chosenDayToken, forceGetUnlockInfoFrequency } from '../api/configure';
 import recordManager from '../utils/recordManager';
 import settingManager from '../utils/settingManager';
 import { colorMaker, colorTool } from '../utils/tools';
