@@ -5,6 +5,7 @@ import tips from './tips';
 import settingManager from '../utils/settingManager';
 import { showModalPromised } from './tools';
 import { forceGetUnlockInfoFrequency } from '../api/configure';
+import wepy from 'wepy';
 
 // 数据格式：{unlock: false, timestamp: 155xxx, items: [{d: '18-09-02', t: 0}, {}]}
 
@@ -23,29 +24,37 @@ const addRecord = function(year, month, day, times) {
   return records;
 };
 
-// 用于获取解锁信息
-// todo wait test
-const forceGetUnlock = async function(records = null) {
-  let getUnlockInfoSince = settingManager.get(settingManager.keys.getUnlockInfoSince);
-  if (getUnlockInfoSince++ === forceGetUnlockInfoFrequency) {
-    if (!records) {
-      let records = await dav.getStrAsync();
-      let needUnlock = records.unlock | false;
-      if (needUnlock) {
-        settingManager.set(settingManager.keys.lockOn, false);
-      }
-    }
-  } else {
-    settingManager.set(settingManager.keys.getUnlockInfoSince, getUnlockInfoSince);
-  }
+const clearUnlockInfo = async function(records) {
+  records.unlock = false;
+  await dav.putStrAsync(records);
 };
 
-const getRecords = async function() {
-  let manualSync = settingManager.get(settingManager.keys.manualSync);
-  if (manualSync) {
-    return saveLocal.getRecordParsed();
+// 用于获取解锁信息
+const forceGetUnlock = async function(that) {
+  let getUnlockInfoSince = settingManager.get(settingManager.keys.getUnlockInfoSince);
+  let records = null;
+  if (getUnlockInfoSince++ >= forceGetUnlockInfoFrequency) {
+    records = await dav.getStrAsync();
+    let needUnlock = records.unlock | false;
+    if (needUnlock) {
+      await doUnlock();
+    }
+    getUnlockInfoSince = 0;
   }
+  settingManager.set(settingManager.keys.getUnlockInfoSince, getUnlockInfoSince);
+  that.lockOn = false;
+  return records;
+};
 
+const doUnlock = async function(records) {
+  tips.toastSuccess('云端解锁成功！');
+  await clearUnlockInfo(records);
+  settingManager.set(settingManager.keys.lockOn, false);
+  wepy.$instance.globalData.lock = false;
+};
+
+const getRecords = async function(that) {
+  let cloudRecords = null;
   if (!saveLocal.accountExists()) {
     return saveLocal.getRecordParsed();
   } else if (!(await dav.validNetwork())) {
@@ -53,14 +62,25 @@ const getRecords = async function() {
     return saveLocal.getRecordParsed();
   }
 
-  let str = await dav.getStrAsync();
-  // 文件被删，等待重建
-  if (!str) {
+  let manualSync = settingManager.get(settingManager.keys.manualSync);
+  if (manualSync) {
+    cloudRecords = await forceGetUnlock(that);
+    if (!cloudRecords) {
+      return saveLocal.getRecordParsed();
+    }
+  }
+
+  cloudRecords = !!cloudRecords ? cloudRecords : await dav.getStrAsync();
+  console.log(cloudRecords.unlock);
+  if (!cloudRecords) {
     return saveLocal.getRecordParsed();
   }
 
-  let cloudRecords = typeof str === 'string' ? JSON.parse(str) : str;
-  await forceGetUnlock(cloudRecords);
+  if (cloudRecords.unlock) {
+    doUnlock(cloudRecords);
+    that.lockOn = false;
+  }
+
   let localRecords = saveLocal.getRecordParsed();
   if (!localRecords) {
     await showModalPromised({

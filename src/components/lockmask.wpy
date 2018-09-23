@@ -3,13 +3,16 @@
 </style>
 <template>
   <view class="_lock-mask" wx:if="{{lockOn}}">
-    <input class="weui-input" type="password" placeholder="输入锁定密码" @input="inputPassword" value="{{password}}"/>
-    <button @tap="unlock">解锁</button>
-    <view class="_lock-mask-tip">云端解密：登录你的坚果云账户，找到{{fileName}}文件进行编辑，将
+    <input class="_lock-mask-input" type="password" focus="true" placeholder="输入锁定密码" @input="inputPassword" value="{{password}}"/>
+    <button class="_lock-mask-button" @tap="unlock">解锁</button>
+    <view class="_lock-mask-tip">云端解密：如果遗忘密码，请登录你的坚果云账户，找到
+      <view class="_lock-mask-code">{{fileName}}</view>文件进行编辑，将
       <view class="_lock-mask-code">"unlock":false</view>
       改为
-      <view class="_lock-mask-code">"unlock":true</view>
+      <view class="_lock-mask-code">"unlock":true</view>。
     </view>
+    <view class="_lock-mask-tip">请注意：如果你开启了手动上传，修改不会立即起效，将在启动小程序10次后完成解锁。
+      如果你是IOS用户，因为IOS版本微信并未提供小程序后台的关闭方法，需要进行10次微信重启并启动本小程序。</view>
   </view>
 </template>
 <script>

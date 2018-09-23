@@ -1,7 +1,39 @@
 ._lock-mask {
   position: fixed;
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
   background: white;
   width: 100%;
   height: 100%;
   z-index: 1000;
+}
+
+._lock-mask-input {
+  height: 40px;
+  line-height: 40px;
+  margin: 5px;
+  padding-left: 1rem;
+  border-radius: 5px;
+  border: solid .5px #cccccc;
+}
+
+._lock-mask-button {
+  width: 60%;
+  margin: 10px auto;
+}
+
+._lock-mask-tip {
+  color: #999;
+  padding: 5px;
+  box-sizing: border-box;
+  line-height: 1.5rem;
+  view {
+    display: inline;
+  }
+  ._lock-mask-code {
+    background: #eee;
+    border: solid .5px #cccccc;
+  }
 }

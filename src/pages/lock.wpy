@@ -81,12 +81,12 @@ export default class Lock extends wepy.page {
       if (this.lockOn && (!this.password || this.password.length === 0)) {
         tips.toastTip('请输入密码');
       } else {
-        console.log(this.lockOccasionIndex);
         let records = {};
         records[settingManager.keys.lockOccasionIndex] = this.lockOccasionIndex;
         records[settingManager.keys.lockPassword] = this.password;
         records[settingManager.keys.lockOn] = this.lockOn;
         settingManager.setMulti(records);
+        tips.toastSuccess('保存成功！');
       }
     },
     lockOnSwitch() {

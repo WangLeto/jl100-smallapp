@@ -31,7 +31,6 @@ const set = function(key, value) {
 };
 
 const setMulti = function(pairs) {
-  console.log(pairs);
   Object.keys(pairs).forEach(key => {
     callback(key, pairs[key]);
   });

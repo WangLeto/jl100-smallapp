@@ -44,7 +44,7 @@ const defaultTimesArray = [{ text: '0 😘', num: 0 }, { text: '1 😑', num: 1 
 const lockOccasions = [
   '启动时', '离开小程序界面时'
 ];
-const forceGetUnlockInfoFrequency = 20;
+const forceGetUnlockInfoFrequency = 3;
 
 module.exports = {
   apiRoot,

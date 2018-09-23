@@ -163,7 +163,7 @@ export default class Index extends wepy.page {
 
   async onLoad() {
     this.lockOn = wepy.$instance.globalData.lockOn;
-    this.records = await recordManager.getRecords();
+    this.records = await recordManager.getRecords(this);
     this.refreshMonthStyle();
     this.drawChosenDayAndToday();
     this.$apply();
