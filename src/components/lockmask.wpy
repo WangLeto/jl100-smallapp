@@ -7,22 +7,22 @@
            value="{{password}}"/>
     <button class="_lock-mask-button" @tap="unlock">确认</button>
     <button class="_lock-mask-button finger" @tap="useFinger">使用指纹解锁</button>
-    <view class="_lock-mask-tip">云端解密：如果遗忘密码，请登录你的坚果云账户，找到
+    <view class="_lock-mask-tip">云端解密：若遗忘密码，请登录坚果云，找到
       <view class="_lock-mask-code">{{fileName}}</view>
-      文件进行编辑，将
+      文件，将
       <view class="_lock-mask-code">"unlock":false</view>
-      改为
+      修改为
       <view class="_lock-mask-code">"unlock":true</view>
       。
     </view>
-    <view class="_lock-mask-tip">请注意：如果你开启了手动上传，修改不会立即起效，将在启动小程序10次后完成解锁。
-      如果你是IOS用户，因为IOS版本微信并未提供小程序后台的关闭方法，需要进行10次微信重启并启动本小程序。
+    <view class="_lock-mask-tip">请注意：启用手动上传后，修改不会立即起效，在重复启动小程序{{forceGetUnlockInfoFrequency}}次后解锁。
+      因为IOS版本微信无法彻底关闭小程序，因此苹果设备需要重启{{forceGetUnlockInfoFrequency}}次微信及本小程序。
     </view>
   </view>
 </template>
 <script>
 import wepy from 'wepy';
-import { fileName } from '../api/configure';
+import { fileName, forceGetUnlockInfoFrequency } from '../api/configure';
 import tips from '../utils/tips';
 import settingManager from '../utils/settingManager';
 
@@ -36,7 +36,8 @@ export default class LockMask extends wepy.component {
   };
   data = {
     fileName: fileName,
-    password: ''
+    password: '',
+    forceGetUnlockInfoFrequency: forceGetUnlockInfoFrequency
   };
   methods = {
     inputPassword(e) {

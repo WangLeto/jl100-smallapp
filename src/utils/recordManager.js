@@ -31,18 +31,21 @@ const clearUnlockInfo = async function(records) {
 
 // 用于获取解锁信息
 const forceGetUnlock = async function(that) {
+  if (!wepy.$instance.globalData.lockOn) {
+    return null;
+  }
   let getUnlockInfoSince = settingManager.get(settingManager.keys.getUnlockInfoSince);
   let records = null;
   if (getUnlockInfoSince++ >= forceGetUnlockInfoFrequency) {
     records = await dav.getStrAsync();
     let needUnlock = records.unlock | false;
     if (needUnlock) {
-      await doUnlock();
+      that.lockOn = false;
+      await doUnlock(records);
     }
     getUnlockInfoSince = 0;
   }
   settingManager.set(settingManager.keys.getUnlockInfoSince, getUnlockInfoSince);
-  that.lockOn = false;
   return records;
 };
 
@@ -65,20 +68,16 @@ const getRecords = async function(that) {
   let manualSync = settingManager.get(settingManager.keys.manualSync);
   if (manualSync) {
     cloudRecords = await forceGetUnlock(that);
-    if (!cloudRecords) {
-      return saveLocal.getRecordParsed();
+    if (!!cloudRecords && cloudRecords.unlock) {
+      doUnlock(cloudRecords);
+      that.lockOn = false;
     }
-  }
-
-  cloudRecords = !!cloudRecords ? cloudRecords : await dav.getStrAsync();
-  console.log(cloudRecords.unlock);
-  if (!cloudRecords) {
     return saveLocal.getRecordParsed();
   }
+  cloudRecords = !!cloudRecords ? cloudRecords : await dav.getStrAsync();
 
-  if (cloudRecords.unlock) {
-    doUnlock(cloudRecords);
-    that.lockOn = false;
+  if (!cloudRecords) {
+    return saveLocal.getRecordParsed();
   }
 
   let localRecords = saveLocal.getRecordParsed();
