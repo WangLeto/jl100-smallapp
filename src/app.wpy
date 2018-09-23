@@ -9,6 +9,7 @@ import 'wepy-async-function';
 import tips from './utils/tips';
 import recordManager from './utils/recordManager';
 import { colorMaker } from './utils/tools';
+import settingManager from './utils/settingManager';
 
 export default class extends wepy.app {
   config = {
@@ -38,7 +39,11 @@ export default class extends wepy.app {
   globalData = {
     // 是否在 index onShow 时更新数据
     reloadData: false,
-    tmpRecords: null
+    tmpRecords: null,
+    // 全局锁定flag
+    lock: false,
+    // 离开时锁定
+    lockOnHide: false
   };
 
   constructor() {
@@ -73,6 +78,8 @@ export default class extends wepy.app {
   }
 
   async onLaunch() {
+    this.globalData.lockOnHide = settingManager.get(settingManager.keys.lockOccasionIndex) === 1;
+    this.globalData.lockOn = settingManager.get(settingManager.keys.lockOn);
     await colorMaker.init();
   }
 }

@@ -4,6 +4,7 @@ import dav from '../api/davApi';
 import tips from './tips';
 import settingManager from '../utils/settingManager';
 import { showModalPromised } from './tools';
+import { forceGetUnlockInfoFrequency } from '../api/configure';
 
 // 数据格式：{unlock: false, timestamp: 155xxx, items: [{d: '18-09-02', t: 0}, {}]}
 
@@ -20,6 +21,23 @@ const addRecord = function(year, month, day, times) {
   records.timestamp = _.now();
   saveLocal.saveRecord(records);
   return records;
+};
+
+// 用于获取解锁信息
+// todo wait test
+const forceGetUnlock = async function(records = null) {
+  let getUnlockInfoSince = settingManager.get(settingManager.keys.getUnlockInfoSince);
+  if (getUnlockInfoSince++ === forceGetUnlockInfoFrequency) {
+    if (!records) {
+      let records = await dav.getStrAsync();
+      let needUnlock = records.unlock | false;
+      if (needUnlock) {
+        settingManager.set(settingManager.keys.lockOn, false);
+      }
+    }
+  } else {
+    settingManager.set(settingManager.keys.getUnlockInfoSince, getUnlockInfoSince);
+  }
 };
 
 const getRecords = async function() {
@@ -42,6 +60,7 @@ const getRecords = async function() {
   }
 
   let cloudRecords = typeof str === 'string' ? JSON.parse(str) : str;
+  await forceGetUnlock(cloudRecords);
   let localRecords = saveLocal.getRecordParsed();
   if (!localRecords) {
     await showModalPromised({

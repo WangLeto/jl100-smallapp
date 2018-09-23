@@ -3,6 +3,7 @@
 @import "../style/index";
 </style>
 <template>
+  <lockmask :lockOn.sync="lockOn"></lockmask>
   <view class="main">
     <view class="demo5">
       <calendar
@@ -39,6 +40,7 @@
 
 <script>
 import wepy from 'wepy';
+import LockMask from '../components/lockmask';
 import dav from '../api/davApi';
 import _ from 'lodash';
 import tips from '../utils/tips';
@@ -56,6 +58,10 @@ export default class Index extends wepy.page {
     }
   };
 
+  components = {
+    lockmask: LockMask
+  };
+
   data = {
     year: new Date().getFullYear(),      // 年份
     month: new Date().getMonth() + 1,    // 月份
@@ -70,7 +76,8 @@ export default class Index extends wepy.page {
     timesArrayText: null,
     records: null,
     manualSync: false,
-    binaryShow: false
+    binaryShow: false,
+    lockOn: false
   };
 
   computed = {
@@ -155,6 +162,7 @@ export default class Index extends wepy.page {
   };
 
   async onLoad() {
+    this.lockOn = wepy.$instance.globalData.lockOn;
     this.records = await recordManager.getRecords();
     this.refreshMonthStyle();
     this.drawChosenDayAndToday();
@@ -313,6 +321,9 @@ export default class Index extends wepy.page {
   }
 
   async onShow() {
+    if (wepy.$instance.globalData.lockOnHide) {
+      this.lockOn = wepy.$instance.globalData.lockOn;
+    }
     if (this.$parent.globalData.reloadData) {
       this.$parent.globalData.reloadData = false;
       this.records = this.$parent.globalData.tmpRecords;

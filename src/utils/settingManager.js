@@ -62,6 +62,8 @@ const defaultSetting = function(key) {
     return 0;
   case keys.lockOn:
     return false;
+  case keys.getUnlockInfoSince:
+    return 0;
   }
 };
 
