@@ -18,16 +18,30 @@ const get = function(key, _callback) {
   return value;
 };
 
-const set = async function(key, value) {
+const set = function(key, value) {
   // 监听者，预计用于tools里color的内存数据维护
   callback(key, value);
-  let str = await wx.getStorageSync(keys.mainKey);
+  let str = wx.getStorageSync(keys.mainKey);
   let records = {};
   if (!!str) {
     records = JSON.parse(str);
   }
   records[key] = value;
-  await wx.setStorageSync(keys.mainKey, JSON.stringify(records));
+  wx.setStorageSync(keys.mainKey, JSON.stringify(records));
+};
+
+const setMulti = function(pairs) {
+  console.log(pairs);
+  Object.keys(pairs).forEach(key => {
+    callback(key, pairs[key]);
+  });
+  let str = wx.getStorageSync(keys.mainKey);
+  let records = {};
+  if (!!str) {
+    records = JSON.parse(str);
+  }
+  records = Object.assign(records, pairs);
+  wx.setStorageSync(keys.mainKey, JSON.stringify(records));
 };
 
 const defaultSetting = function(key) {
@@ -44,13 +58,16 @@ const defaultSetting = function(key) {
     return true;
   case keys.lockPassword:
     return '';
-  case keys.lockOccasion:
+  case keys.lockOccasionIndex:
     return 0;
+  case keys.lockOn:
+    return false;
   }
 };
 
 module.exports = {
   keys,
   get,
-  set
+  set,
+  setMulti
 };
