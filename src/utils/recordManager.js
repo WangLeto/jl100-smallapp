@@ -50,7 +50,7 @@ const doUnlock = async function(records) {
   tips.toastSuccess('云端解锁成功！');
   await clearUnlockInfo(records);
   settingManager.set(settingManager.keys.lockOn, false);
-  wepy.$instance.globalData.lock = false;
+  wepy.$instance.globalData.lockOn = false;
 };
 
 const getRecords = async function(that) {

@@ -61,7 +61,7 @@
     <view class="weui-cells__title">锁定设置</view>
     <view class="weui-cells weui-cells_after-title">
       <navigator url="lock" class="weui-cell weui-cell_access" hover-class="weui-cell_active">
-        <view class="weui-cell__bd">设置密码及锁定时机</view>
+        <view class="weui-cell__bd">设置锁定及密码</view>
         <view class="weui-cell__ft weui-cell__ft_in-access"></view>
       </navigator>
     </view>
@@ -117,6 +117,7 @@
 </template>
 <script>
 import wepy from 'wepy';
+import LockMask from '../components/lockmask';
 import saveLocal from '../api/saveLocal';
 import tips from '../utils/tips';
 import dav from '../api/davApi';

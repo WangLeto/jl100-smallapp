@@ -321,9 +321,6 @@ export default class Index extends wepy.page {
   }
 
   async onShow() {
-    if (wepy.$instance.globalData.lockOnHide) {
-      this.lockOn = wepy.$instance.globalData.lockOn;
-    }
     if (this.$parent.globalData.reloadData) {
       this.$parent.globalData.reloadData = false;
       this.records = this.$parent.globalData.tmpRecords;

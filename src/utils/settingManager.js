@@ -57,8 +57,6 @@ const defaultSetting = function(key) {
     return true;
   case keys.lockPassword:
     return '';
-  case keys.lockOccasionIndex:
-    return 0;
   case keys.lockOn:
     return false;
   case keys.getUnlockInfoSince:
