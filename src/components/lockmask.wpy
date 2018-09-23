@@ -3,16 +3,21 @@
 </style>
 <template>
   <view class="_lock-mask" wx:if="{{lockOn}}">
-    <input class="_lock-mask-input" type="password" focus="true" placeholder="输入锁定密码" @input="inputPassword" value="{{password}}"/>
-    <button class="_lock-mask-button" @tap="unlock">解锁</button>
+    <input class="_lock-mask-input" type="password" focus="true" placeholder="输入锁定密码" @input="inputPassword"
+           value="{{password}}"/>
+    <button class="_lock-mask-button" @tap="unlock">确认</button>
+    <button class="_lock-mask-button finger" @tap="useFinger">使用指纹解锁</button>
     <view class="_lock-mask-tip">云端解密：如果遗忘密码，请登录你的坚果云账户，找到
-      <view class="_lock-mask-code">{{fileName}}</view>文件进行编辑，将
+      <view class="_lock-mask-code">{{fileName}}</view>
+      文件进行编辑，将
       <view class="_lock-mask-code">"unlock":false</view>
       改为
-      <view class="_lock-mask-code">"unlock":true</view>。
+      <view class="_lock-mask-code">"unlock":true</view>
+      。
     </view>
     <view class="_lock-mask-tip">请注意：如果你开启了手动上传，修改不会立即起效，将在启动小程序10次后完成解锁。
-      如果你是IOS用户，因为IOS版本微信并未提供小程序后台的关闭方法，需要进行10次微信重启并启动本小程序。</view>
+      如果你是IOS用户，因为IOS版本微信并未提供小程序后台的关闭方法，需要进行10次微信重启并启动本小程序。
+    </view>
   </view>
 </template>
 <script>
@@ -43,10 +48,35 @@ export default class LockMask extends wepy.component {
       } else {
         tips.toastErr('密码错误');
       }
+    },
+    useFinger() {
+      let that = this;
+      if (wx.canIUse('checkIsSupportSoterAuthentication')) {
+        wx.checkIsSupportSoterAuthentication({
+          success(res) {
+            let support = res.supportMode.includes('fingerPrint');
+            if (support) {
+              wx.startSoterAuthentication({
+                requestAuthModes: ['fingerPrint'],
+                challenge: '123456',
+                authContent: '请用指纹解锁',
+                success(res) {
+                  tips.toastSuccess('解锁成功');
+                  that.lockOn = false;
+                  wepy.$instance.globalData.lockOn = false;
+                  that.$apply();
+                },
+                fail(res) {
+                  tips.toastTip('已取消');
+                }
+              });
+            } else {
+              tips.toastTip('此设备暂不支持');
+            }
+          }
+        });
+      }
     }
   };
-
-  onLoad() {
-  }
 }
 </script>
