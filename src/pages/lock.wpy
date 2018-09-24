@@ -6,6 +6,7 @@
     <view class="page__title">密码设置</view>
     <view class="page__desc">进行锁定的相关设置</view>
   </view>
+  <view class="weui-cells__title switch">选择启用锁定</view>
   <view class="weui-cells weui-cells_after-title">
     <view class="weui-cell weui-cell_switch">
       <view class="weui-cell__bd">启用锁定</view>
@@ -26,6 +27,15 @@
         </view>
       </view>
     </view>
+    <view class="weui-cells__title switch">指纹解锁</view>
+    <view class="weui-cells weui-cells_after-title">
+      <view class="weui-cell weui-cell_switch">
+        <view class="weui-cell__bd">默认使用指纹解锁</view>
+        <view class="weui-cell__ft">
+          <switch checked="{{useFingerUnlock}}" @change="useFingerSwitch"/>
+        </view>
+      </view>
+    </view>
   </view>
   <view class="button-sp-area">
     <button @tap="save">保存设置</button>
@@ -41,7 +51,8 @@ import tips from '../utils/tips';
 export default class Lock extends wepy.page {
   data = {
     password: '',
-    lockOn: null
+    lockOn: null,
+    useFingerUnlock: false
   };
   methods = {
     inputPassword(e) {
@@ -54,12 +65,40 @@ export default class Lock extends wepy.page {
         let records = {};
         records[settingManager.keys.lockPassword] = this.password;
         records[settingManager.keys.lockOn] = this.lockOn;
+        records[settingManager.keys.useFingerUnlock] = this.useFingerUnlock;
         settingManager.setMulti(records);
         tips.toastSuccess('保存成功！');
       }
     },
     lockOnSwitch() {
       this.lockOn = !this.lockOn;
+    },
+    useFingerSwitch() {
+      this.useFingerUnlock = !this.useFingerUnlock;
+      let that = this;
+      if (!this.useFingerUnlock) {
+        settingManager.set(settingManager.keys.useFingerUnlock, false);
+        return;
+      }
+      if (wx.canIUse('checkIsSupportSoterAuthentication')) {
+        wx.checkIsSupportSoterAuthentication({
+          success(res) {
+            let support = res.supportMode.includes('fingerPrint');
+            if (support) {
+              tips.toastSuccess('成功！请保存');
+            } else {
+              that.useFingerUnlock = false;
+              that.$apply();
+              tips.toastErr('启用失败');
+            }
+          },
+          fail(res) {
+            that.useFingerUnlock = false;
+            that.$apply();
+            tips.toastErr('启用失败');
+          }
+        });
+      }
     }
   };
 
@@ -75,6 +114,7 @@ export default class Lock extends wepy.page {
     }
     this.password = settingManager.get(settingManager.keys.lockPassword);
     this.lockOn = settingManager.get(settingManager.keys.lockOn);
+    this.useFingerUnlock = settingManager.get(settingManager.keys.useFingerUnlock);
   }
 }
 </script>

@@ -61,6 +61,8 @@ const defaultSetting = function(key) {
     return false;
   case keys.getUnlockInfoSince:
     return 0;
+  case keys.useFingerUnlock:
+    return false;
   }
 };
 

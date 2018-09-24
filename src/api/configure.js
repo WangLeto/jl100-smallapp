@@ -36,7 +36,8 @@ const settingKeys = {
   lockOn: 'lockOn',
   lockPassword: 'lockPassword',
   // 自从上次获取解锁信息后打开次数
-  getUnlockInfoSince: 'getUnlockInfoSince'
+  getUnlockInfoSince: 'getUnlockInfoSince',
+  useFingerUnlock: 'useFingerUnlock'
 };
 const defaultTimesArray = [{ text: '0 😘', num: 0 }, { text: '1 😑', num: 1 }, { text: '2 ☹️', num: 2 },
   { text: '3 😣', num: 3 }, { text: '4 😵', num: 4 }, { text: '>=5 😱', num: 5 }];

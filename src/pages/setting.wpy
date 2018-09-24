@@ -199,7 +199,7 @@ export default class Demo extends wepy.page {
     copyEmail() {
       let that = this;
       wx.setClipboardData({
-        data: 'wleto1@163.com',
+        data: 'wleto3@163.com',
         success: () => {
           that.showModal = false;
           that.$apply();

@@ -3,11 +3,16 @@
 </style>
 <template>
   <view class="_lock-mask" wx:if="{{lockOn}}">
-    <input class="_lock-mask-input" type="password" focus="true" placeholder="输入锁定密码" @input="inputPassword"
+    <view class="page__hd">
+      <view class="page__title">锁定</view>
+      <view class="page__desc">输入锁定密码进行解锁</view>
+    </view>
+    <input class="_lock-mask-input" type="password" placeholder="输入锁定密码" @input="inputPassword"
            value="{{password}}"/>
     <button class="_lock-mask-button" @tap="unlock">确认</button>
-    <button class="_lock-mask-button finger" @tap="useFinger">使用指纹解锁</button>
-    <view class="_lock-mask-tip">云端解密：若遗忘密码，请登录坚果云，找到
+    <button class="_lock-mask-button finger" @tap="useFinger" wx:if="{{canUseFinger}}">使用指纹解锁</button>
+    <view class="_lock-mask-tip-toggle" @tap="toggleTip">遗忘密码</view>
+    <view class="_lock-mask-tip" wx:if="{{toggleTip}}">云端解密：若遗忘密码，请登录坚果云，找到
       <view class="_lock-mask-code">{{fileName}}</view>
       文件，将
       <view class="_lock-mask-code">"unlock":false</view>
@@ -15,7 +20,7 @@
       <view class="_lock-mask-code">"unlock":true</view>
       。
     </view>
-    <view class="_lock-mask-tip">请注意：启用手动上传后，修改不会立即起效，在重复启动小程序{{forceGetUnlockInfoFrequency}}次后解锁。
+    <view class="_lock-mask-tip" wx:if="{{toggleTip}}">请注意：启用手动上传后，修改不会立即起效，在重复启动小程序{{forceGetUnlockInfoFrequency}}次后解锁。
       因为IOS版本微信无法彻底关闭小程序，因此苹果设备需要重启{{forceGetUnlockInfoFrequency}}次微信及本小程序。
     </view>
   </view>
@@ -25,6 +30,7 @@ import wepy from 'wepy';
 import { fileName, forceGetUnlockInfoFrequency } from '../api/configure';
 import tips from '../utils/tips';
 import settingManager from '../utils/settingManager';
+import { throttle } from '../utils/throttleUtil';
 
 export default class LockMask extends wepy.component {
   props = {
@@ -37,7 +43,9 @@ export default class LockMask extends wepy.component {
   data = {
     fileName: fileName,
     password: '',
-    forceGetUnlockInfoFrequency: forceGetUnlockInfoFrequency
+    forceGetUnlockInfoFrequency: forceGetUnlockInfoFrequency,
+    canUseFinger: false,
+    toggleTip: false
   };
   methods = {
     inputPassword(e) {
@@ -46,38 +54,60 @@ export default class LockMask extends wepy.component {
     unlock() {
       if (this.password === settingManager.get(settingManager.keys.lockPassword)) {
         this.lockOn = false;
+        tips.toastSuccess('解锁成功');
       } else {
         tips.toastErr('密码错误');
       }
     },
     useFinger() {
-      let that = this;
-      if (wx.canIUse('checkIsSupportSoterAuthentication')) {
-        wx.checkIsSupportSoterAuthentication({
-          success(res) {
-            let support = res.supportMode.includes('fingerPrint');
-            if (support) {
-              wx.startSoterAuthentication({
-                requestAuthModes: ['fingerPrint'],
-                challenge: '123456',
-                authContent: '请用指纹解锁',
-                success(res) {
-                  tips.toastSuccess('解锁成功');
-                  that.lockOn = false;
-                  wepy.$instance.globalData.lockOn = false;
-                  that.$apply();
-                },
-                fail(res) {
-                  tips.toastTip('已取消');
-                }
-              });
-            } else {
-              tips.toastTip('此设备暂不支持');
-            }
-          }
-        });
-      }
+      this.useFingerUnlock();
+    },
+    toggleTip() {
+      this.toggleTip = !this.toggleTip;
     }
   };
+
+  useFingerUnlock() {
+    let that = this;
+    tips.loading('加载中');
+    throttle(function() {
+      wx.startSoterAuthentication({
+        requestAuthModes: ['fingerPrint'],
+        challenge: '123456',
+        authContent: '请用指纹解锁',
+        success() {
+          tips.toastSuccess('解锁成功');
+          that.lockOn = false;
+          that.$apply();
+        },
+        fail() {
+          tips.toastTip('已取消');
+        }
+      });
+    }, 2500);
+    tips.hideLoading();
+  }
+
+  onLoad() {
+    let useFingerUnlock = settingManager.get(settingManager.keys.useFingerUnlock);
+    if (useFingerUnlock) {
+      this.useFingerUnlock();
+      this.canUseFinger = true;
+      tips.hideLoading();
+      return;
+    }
+    let that = this;
+    tips.loading('加载中');
+    if (wx.canIUse('checkIsSupportSoterAuthentication')) {
+      wx.checkIsSupportSoterAuthentication({
+        success(res) {
+          let support = res.supportMode.includes('fingerPrint');
+          that.canUseFinger = support;
+          that.$apply();
+        }
+      });
+    }
+    tips.hideLoading();
+  }
 }
 </script>
