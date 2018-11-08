@@ -2,4 +2,4 @@
 
 扫码体验：
 
-![](http://okonvxmbq.bkt.clouddn.com/gh_40bdaeef0d7c_430%20%281%29.jpg)
+![](http://qiniu1.letow.top/gh_40bdaeef0d7c_430%20%281%29.jpg)
