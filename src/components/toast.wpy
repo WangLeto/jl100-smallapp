@@ -1,0 +1,47 @@
+<style lang="less">
+@import '../style/toast';
+</style>
+<template>
+  <view class="_toast {{showMe ? 'showing' : 'hiding'}}">
+    <view>
+      连续戒除，第
+      <text>{{days}}</text>天
+    </view>
+    <view class="close-btn" @tap="hideToast"></view>
+  </view>
+</template>
+<script>
+import wepy from 'wepy';
+
+let cancelId = null;
+export default class Toast extends wepy.component {
+  data = {
+    days: -1,
+    showMe: false
+  }
+  showYo(daysStr, force) {
+    let days = +daysStr;
+    if (days === this.days && !force) {
+      return;
+    }
+    if (cancelId !== null) {
+      clearTimeout(cancelId);
+      cancelId = null;
+    }
+    this.days = days;
+    setTimeout(() => {
+      this.showMe = true;
+      this.$apply();
+    }, 300);
+    cancelId = setTimeout(() => {
+      this.showMe = false;
+      this.$apply();
+    }, 3800);
+  }
+  methods = {
+    hideToast() {
+      this.showMe = false;
+    }
+  }
+}
+</script>

@@ -55,6 +55,8 @@ export default class LockMask extends wepy.component {
       if (this.password === settingManager.get(settingManager.keys.lockPassword)) {
         this.lockOn = false;
         tips.toastSuccess('解锁成功');
+        console.log('emit unlock')
+        this.$emit('unlocked');
       } else {
         tips.toastErr('密码错误');
       }
@@ -79,6 +81,7 @@ export default class LockMask extends wepy.component {
           tips.toastSuccess('解锁成功');
           that.lockOn = false;
           that.$apply();
+          that.$emit('unlocked');
         },
         fail() {
           tips.toastTip('已取消');
